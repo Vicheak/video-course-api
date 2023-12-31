@@ -1,0 +1,1 @@
+ALTER SEQUENCE authorities_authority_id_seq RESTART WITH 5;
