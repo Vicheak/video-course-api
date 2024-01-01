@@ -40,7 +40,7 @@ public class Course {
     @Column(name = "course_cost")
     private BigDecimal cost;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

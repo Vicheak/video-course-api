@@ -79,7 +79,7 @@ public class CategoryController {
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{name}")
-    public BaseApi<?> updateCategoryByName(@PathVariable String name) {
+    public BaseApi<?> deleteCategoryByName(@PathVariable String name) {
 
         categoryService.deleteCategoryByName(name);
 
