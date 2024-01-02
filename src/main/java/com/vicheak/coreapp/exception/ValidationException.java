@@ -18,7 +18,6 @@ public class ValidationException {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public BaseError<?> handleValidationException(MethodArgumentNotValidException ex) {
-
         List<FieldError> errors = new ArrayList<>();
 
         ex.getFieldErrors().forEach(fieldError -> errors.add(FieldError.builder()

@@ -48,6 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.fromCategoryToCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional
     @Override
     public CategoryDto updateCategoryByName(String name, CategoryDto categoryDto) {
         //check if the category does not exist
@@ -70,6 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.fromCategoryToCategoryDto(categoryRepository.save(category));
     }
 
+    @Transactional
     @Override
     public void deleteCategoryByName(String name) {
         //check if the category does not exist
