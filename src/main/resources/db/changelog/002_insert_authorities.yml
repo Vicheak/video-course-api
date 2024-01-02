@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002_insert_authorities
+      author: suonvicheak991@gmail.com
+      changes:
+        - loadData:
+            tableName: authorities
+            columns:
+              - column:
+                  name: authority_id
+                  type: INTEGER
+              - column:
+                  name: authority_name
+                  type: VARCHAR
+            file: db/data/002_insert_authorities.csv

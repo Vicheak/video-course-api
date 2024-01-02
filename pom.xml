@@ -44,18 +44,38 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- This dependency is for reducing boiler-plate code -->
+        <!-- This dependency is for reducing boiler-plated code -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
 
+        <!-- This dependency is for Postgres SQL database Driver -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- This dependency is for Spring Data JPA (working with provider Hibernate) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- This dependency is for schema migration and database version control -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
-
         <plugins>
+
+            <!-- This plug-in is for Lombok -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -68,8 +88,18 @@
                     </excludes>
                 </configuration>
             </plugin>
-        </plugins>
 
+            <!-- This plug-in is for Liquibase (generate Liquibase change log file) -->
+            <plugin>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-maven-plugin</artifactId>
+                <configuration>
+                    <propertyFile>src/main/resources/liquibase.properties</propertyFile>
+                    <outputChangeLogFile>src/main/resources/liquibase-outputChangeLog.yml</outputChangeLogFile>
+                </configuration>
+            </plugin>
+
+        </plugins>
     </build>
 
 </project>

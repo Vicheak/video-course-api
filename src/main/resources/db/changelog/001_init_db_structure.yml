@@ -1,0 +1,358 @@
+databaseChangeLog:
+- changeSet:
+    id: 001_init_db_structure
+    author: suonvicheak991@gmail.com
+    changes:
+      - createTable:
+          columns:
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: authorities_pkey
+                name: authority_id
+                type: INTEGER
+            - column:
+                constraints:
+                  nullable: false
+                name: authority_name
+                type: VARCHAR(120)
+          tableName: authorities
+      - createTable:
+          columns:
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: categories_pkey
+                name: category_id
+                type: INTEGER
+            - column:
+                constraints:
+                  nullable: false
+                name: category_name
+                type: VARCHAR(100)
+          tableName: categories
+      - createTable:
+          columns:
+            - column:
+                constraints:
+                  nullable: false
+                name: category_id
+                type: INTEGER
+            - column:
+                name: course_cost
+                type: numeric(38, 2)
+            - column:
+                name: course_duration_in_hour
+                type: INTEGER
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: courses_pkey
+                name: course_id
+                type: BIGINT
+            - column:
+                constraints:
+                  nullable: false
+                name: course_title
+                type: VARCHAR(150)
+            - column:
+                name: course_description
+                type: TEXT
+            - column:
+                name: course_image
+                type: VARCHAR(255)
+            - column:
+                constraints:
+                  nullable: false
+                name: course_uuid
+                type: VARCHAR(255)
+          tableName: courses
+      - createTable:
+          columns:
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: roles_pkey
+                name: role_id
+                type: INTEGER
+            - column:
+                constraints:
+                  nullable: false
+                name: role_name
+                type: VARCHAR(100)
+          tableName: roles
+      - createTable:
+          columns:
+            - column:
+                name: user_date_of_birth
+                type: date
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: users_pkey
+                name: user_id
+                type: BIGINT
+            - column:
+                name: user_join_date
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                constraints:
+                  nullable: false
+                name: user_gender
+                type: VARCHAR(50)
+            - column:
+                constraints:
+                  nullable: false
+                name: user_phone_number
+                type: VARCHAR(100)
+            - column:
+                constraints:
+                  nullable: false
+                name: user_email
+                type: VARCHAR(150)
+            - column:
+                constraints:
+                  nullable: false
+                name: user_username
+                type: VARCHAR(150)
+            - column:
+                constraints:
+                  nullable: false
+                name: user_password
+                type: VARCHAR(255)
+            - column:
+                name: user_photo
+                type: VARCHAR(255)
+            - column:
+                constraints:
+                  nullable: false
+                name: user_uuid
+                type: VARCHAR(255)
+          tableName: users
+      - createTable:
+          columns:
+            - column:
+                name: role_id
+                type: INTEGER
+            - column:
+                constraints:
+                  nullable: false
+                name: created_at
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                constraints:
+                  nullable: false
+                name: updated_at
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                name: user_id
+                type: BIGINT
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: users_roles_pkey
+                name: user_role_id
+                type: BIGINT
+          tableName: users_roles
+      - createTable:
+          columns:
+            - column:
+                name: course_id
+                type: BIGINT
+            - column:
+                name: user_id
+                type: BIGINT
+            - column:
+                constraints:
+                  nullable: false
+                name: video_created_at
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                autoIncrement: true
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: videos_pkey
+                name: video_id
+                type: BIGINT
+            - column:
+                constraints:
+                  nullable: false
+                name: video_updated_at
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                name: video_description
+                type: TEXT
+            - column:
+                name: video_image_cover
+                type: VARCHAR(255)
+            - column:
+                constraints:
+                  nullable: false
+                name: video_link
+                type: VARCHAR(255)
+            - column:
+                constraints:
+                  nullable: false
+                name: video_title
+                type: VARCHAR(255)
+            - column:
+                constraints:
+                  nullable: false
+                name: video_uuid
+                type: VARCHAR(255)
+          tableName: videos
+      - createTable:
+          columns:
+            - column:
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: roles_authorities_pkey
+                name: auth_id
+                type: INTEGER
+            - column:
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: roles_authorities_pkey
+                name: role_id
+                type: INTEGER
+          tableName: roles_authorities
+      - addUniqueConstraint:
+          columnNames: authority_name
+          constraintName: authorities_authority_name_key
+          tableName: authorities
+      - addUniqueConstraint:
+          columnNames: category_name
+          constraintName: categories_category_name_key
+          tableName: categories
+      - addUniqueConstraint:
+          columnNames: course_title
+          constraintName: courses_course_title_key
+          tableName: courses
+      - addUniqueConstraint:
+          columnNames: course_uuid
+          constraintName: courses_course_uuid_key
+          tableName: courses
+      - addUniqueConstraint:
+          columnNames: role_name
+          constraintName: roles_role_name_key
+          tableName: roles
+      - addUniqueConstraint:
+          columnNames: user_email
+          constraintName: users_user_email_key
+          tableName: users
+      - addUniqueConstraint:
+          columnNames: user_phone_number
+          constraintName: users_user_phone_number_key
+          tableName: users
+      - addUniqueConstraint:
+          columnNames: user_username
+          constraintName: users_user_username_key
+          tableName: users
+      - addUniqueConstraint:
+          columnNames: user_uuid
+          constraintName: users_user_uuid_key
+          tableName: users
+      - addUniqueConstraint:
+          columnNames: user_id, role_id
+          constraintName: ukq3r1u8cne2rw2hkr899xuh7vj
+          tableName: users_roles
+      - addUniqueConstraint:
+          columnNames: user_id, role_id
+          constraintName: users_roles_user_id_role_id_key
+          tableName: users_roles
+      - addUniqueConstraint:
+          columnNames: video_uuid
+          constraintName: videos_video_uuid_key
+          tableName: videos
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: users_roles
+          constraintName: fk2o0jvgh89lemvvo17cbqvdxaa
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: user_id
+          referencedTableName: users
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: category_id
+          baseTableName: courses
+          constraintName: fk72l5dj585nq7i6xxv1vj51lyn
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: category_id
+          referencedTableName: categories
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: user_id
+          baseTableName: videos
+          constraintName: fk75696octon297ywni28sk19ek
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: user_id
+          referencedTableName: users
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: auth_id
+          baseTableName: roles_authorities
+          constraintName: fkdj8um20jnggnp5gjs4021dgfu
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: authority_id
+          referencedTableName: authorities
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: role_id
+          baseTableName: users_roles
+          constraintName: fkj6m8fwv7oqv74fcehir1a9ffy
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: role_id
+          referencedTableName: roles
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: role_id
+          baseTableName: roles_authorities
+          constraintName: fkq3iqpff34tgtkvnn545a648cb
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: role_id
+          referencedTableName: roles
+          validate: true
+      - addForeignKeyConstraint:
+          baseColumnNames: course_id
+          baseTableName: videos
+          constraintName: fkrccvc1a5qx2dqsyienwhuk66j
+          deferrable: false
+          initiallyDeferred: false
+          onDelete: NO ACTION
+          onUpdate: NO ACTION
+          referencedColumnNames: course_id
+          referencedTableName: courses
+          validate: true

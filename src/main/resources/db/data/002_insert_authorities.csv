@@ -1,0 +1,5 @@
+authority_id,authority_name
+1,video:read
+2,video:write
+3,video:update
+4,video:delete
