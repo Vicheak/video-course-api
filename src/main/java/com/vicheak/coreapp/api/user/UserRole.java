@@ -1,11 +1,9 @@
 package com.vicheak.coreapp.api.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vicheak.coreapp.api.authority.Role;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,6 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
 @Entity
 @Table(name = "users_roles",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"}))
@@ -25,12 +25,14 @@ public class UserRole {
     @Column(name = "user_role_id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "role_id")
+    @JsonBackReference
     private Role role;
 
     @CreationTimestamp

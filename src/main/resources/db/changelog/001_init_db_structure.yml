@@ -92,9 +92,6 @@ databaseChangeLog:
       - createTable:
           columns:
             - column:
-                name: user_date_of_birth
-                type: date
-            - column:
                 autoIncrement: true
                 constraints:
                   nullable: false
@@ -103,23 +100,46 @@ databaseChangeLog:
                 name: user_id
                 type: BIGINT
             - column:
-                name: user_join_date
-                type: TIMESTAMP WITHOUT TIME ZONE
+                name: account_non_expired
+                type: BOOLEAN
+            - column:
+                name: account_non_locked
+                type: BOOLEAN
+            - column:
+                name: credentials_non_expired
+                type: BOOLEAN
+            - column:
+                name: user_date_of_birth
+                type: date
+            - column:
+                constraints:
+                  nullable: false
+                name: user_email
+                type: VARCHAR(150)
+            - column:
+                name: enabled
+                type: BOOLEAN
             - column:
                 constraints:
                   nullable: false
                 name: user_gender
                 type: VARCHAR(50)
             - column:
+                name: user_join_date
+                type: TIMESTAMP WITHOUT TIME ZONE
+            - column:
+                constraints:
+                  nullable: false
+                name: user_password
+                type: VARCHAR(255)
+            - column:
                 constraints:
                   nullable: false
                 name: user_phone_number
                 type: VARCHAR(100)
             - column:
-                constraints:
-                  nullable: false
-                name: user_email
-                type: VARCHAR(150)
+                name: user_photo
+                type: VARCHAR(255)
             - column:
                 constraints:
                   nullable: false
@@ -128,15 +148,13 @@ databaseChangeLog:
             - column:
                 constraints:
                   nullable: false
-                name: user_password
-                type: VARCHAR(255)
-            - column:
-                name: user_photo
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
                 name: user_uuid
+                type: VARCHAR(255)
+            - column:
+                name: verified
+                type: BOOLEAN
+            - column:
+                name: verified_code
                 type: VARCHAR(255)
           tableName: users
       - createTable:
