@@ -6,10 +6,10 @@ import com.vicheak.coreapp.api.course.web.CourseDto;
 import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
 import com.vicheak.coreapp.spec.CourseFilter;
 import com.vicheak.coreapp.spec.CourseSpec;
-import com.vicheak.coreapp.util.PageUtil;
 import com.vicheak.coreapp.util.SortUtil;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -59,19 +59,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PageDto loadPaginatedCourses(Map<String, String> requestMap) {
-        //extract dynamic content (pageNumber & pageLimit) from request map
-
-        //set up the default content
-        int pageNumber = PageUtil.DEFAULT_PAGE_NUMBER;
-        int pageLimit = PageUtil.DEFAULT_PAGE_LIMIT;
-
-        if (requestMap.containsKey(PageUtil.PAGE_NUMBER))
-            pageNumber = Integer.parseInt(requestMap.get(PageUtil.PAGE_NUMBER));
-
-        if (requestMap.containsKey(PageUtil.PAGE_LIMIT))
-            pageLimit = Integer.parseInt(requestMap.get(PageUtil.PAGE_LIMIT));
-
-        Pageable pageable = PageUtil.getPageable(pageNumber, pageLimit);
+        //load the pagination
+        Pageable pageable = LoadPageable.loadPageable(requestMap);
 
         Page<Course> pages = courseRepository.findAll(pageable);
 
@@ -129,7 +118,7 @@ public class CourseServiceImpl implements CourseService {
 
         //check and validate category id from dto
         if (!categoryRepository.existsById(transactionCourseDto.categoryId()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Category ID does not exist in the system!");
 
         //map from dto to entity
@@ -165,7 +154,7 @@ public class CourseServiceImpl implements CourseService {
         //check and validate category id from dto
         if (Objects.nonNull(transactionCourseDto.categoryId()))
             if (!categoryRepository.existsById(transactionCourseDto.categoryId()))
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Category ID does not exist in the system!");
 
         //map from dto to entity
@@ -176,7 +165,7 @@ public class CourseServiceImpl implements CourseService {
             //load the existing category
             Category newCategory = categoryRepository.findById(transactionCourseDto.categoryId())
                     .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.CONFLICT,
+                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                     "Category ID does not exist in the system!")
                     );
             course.setCategory(newCategory);
