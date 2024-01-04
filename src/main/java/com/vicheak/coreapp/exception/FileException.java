@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class FileException {
 
     @ExceptionHandler({MultipartException.class, MaxUploadSizeExceededException.class})
-    public ResponseEntity<?> handleFileMultipartException(Exception ex) {
+    public ResponseEntity<?> handleFileException(Exception ex) {
         var baseError = BaseError.builder()
                 .isSuccess(false)
                 .message("Something went wrong, please check...!")

@@ -48,7 +48,7 @@ public class Video {
     @Column(name = "video_updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
