@@ -2,6 +2,7 @@ package com.vicheak.coreapp.api.course.web;
 
 import com.vicheak.coreapp.api.course.CourseService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.base.BaseApi;
 import com.vicheak.coreapp.pagination.PageDto;
 import jakarta.validation.Valid;
@@ -129,6 +130,20 @@ public class CourseController {
     public FileDto uploadCourseImageByUuid(@PathVariable String uuid,
                                            @RequestPart MultipartFile file) {
         return courseService.uploadCourseImageByUuid(uuid, file);
+    }
+
+    @GetMapping("/{uuid}/videos")
+    public BaseApi<?> loadVideosByCourseUuid(@PathVariable String uuid) {
+
+        List<VideoDto> videoDtoList = courseService.loadVideosByCourseUuid(uuid);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("Videos loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(videoDtoList)
+                .build();
     }
 
 }

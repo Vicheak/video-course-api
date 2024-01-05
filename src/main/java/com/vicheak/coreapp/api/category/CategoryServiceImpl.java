@@ -1,6 +1,9 @@
 package com.vicheak.coreapp.api.category;
 
 import com.vicheak.coreapp.api.category.web.CategoryDto;
+import com.vicheak.coreapp.api.course.CourseMapper;
+import com.vicheak.coreapp.api.course.CourseRepository;
+import com.vicheak.coreapp.api.course.web.CourseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper;
 
     @Override
     public List<CategoryDto> loadAllCategories() {
@@ -83,6 +88,11 @@ public class CategoryServiceImpl implements CategoryService {
                 );
 
         categoryRepository.delete(category);
+    }
+
+    @Override
+    public List<CourseDto> loadCoursesByCategoryName(String name) {
+        return courseMapper.fromCourseToCourseDto(courseRepository.findByCategoryName(name));
     }
 
 }

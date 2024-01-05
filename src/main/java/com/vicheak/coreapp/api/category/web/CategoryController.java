@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.api.category.web;
 
 import com.vicheak.coreapp.api.category.CategoryService;
+import com.vicheak.coreapp.api.course.web.CourseDto;
 import com.vicheak.coreapp.base.BaseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -89,6 +90,20 @@ public class CategoryController {
                 .message("A category has been deleted successfully!")
                 .timestamp(LocalDateTime.now())
                 .payload(Map.of("message", "Payload has no content!"))
+                .build();
+    }
+
+    @GetMapping("/{name}/courses")
+    public BaseApi<?> loadCoursesByCategoryName(@PathVariable String name) {
+
+        List<CourseDto> courseDtoList = categoryService.loadCoursesByCategoryName(name);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("Courses loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(courseDtoList)
                 .build();
     }
 

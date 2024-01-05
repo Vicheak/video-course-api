@@ -2,7 +2,6 @@ package com.vicheak.coreapp.api.user;
 
 import com.vicheak.coreapp.api.authority.Role;
 import com.vicheak.coreapp.api.authority.RoleRepository;
-import com.vicheak.coreapp.api.course.Course;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
@@ -50,25 +49,8 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void createNewUser(TransactionUserDto transactionUserDto) {
-        //check username if already exist
-        if (userRepository.existsByUsernameIgnoreCase(transactionUserDto.username()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Username conflicts resource in the system!");
-
-        //check email if already exist
-        if (userRepository.existsByEmailIgnoreCase(transactionUserDto.email()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Email conflicts resource in the system!");
-
-        //check phone number format
-        if (!FormatUtil.checkPhoneFormat(transactionUserDto.phoneNumber()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Phone Number is not in a valid format!");
-
-        //check phone number is already exist
-        if (userRepository.existsByPhoneNumber(transactionUserDto.phoneNumber()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT,
-                    "Phone Number conflicts resource in the system!");
+        //call this method to validate dto
+        validateTransactionUserDto(transactionUserDto);
 
         //check roles if exist
         boolean allExisted = transactionUserDto.roleIds().stream()
@@ -78,14 +60,7 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Role is not valid in the system! please check!");
 
-        //map from dto to entity
-        User user = userMapper.fromTransactionUserDtoToUser(transactionUserDto);
-        user.setUuid(UUID.randomUUID().toString());
-        user.setVerified(false);
-        user.setAccountNonExpired(true);
-        user.setAccountNonLocked(true);
-        user.setCredentialsNonExpired(true);
-        user.setEnabled(false);
+        User user = setupNewUser(transactionUserDto);
 
         List<UserRole> userRoles = new ArrayList<>();
 
@@ -235,6 +210,40 @@ public class UserServiceImpl implements UserService {
         user.setUserRoles(userRoles);
 
         return userRoles;
+    }
+
+    public void validateTransactionUserDto(TransactionUserDto transactionUserDto) {
+        //check username if already exist
+        if (userRepository.existsByUsernameIgnoreCase(transactionUserDto.username()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Username conflicts resource in the system!");
+
+        //check email if already exist
+        if (userRepository.existsByEmailIgnoreCase(transactionUserDto.email()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Email conflicts resource in the system!");
+
+        //check phone number format
+        if (!FormatUtil.checkPhoneFormat(transactionUserDto.phoneNumber()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Phone Number is not in a valid format!");
+
+        //check phone number is already exist
+        if (userRepository.existsByPhoneNumber(transactionUserDto.phoneNumber()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Phone Number conflicts resource in the system!");
+    }
+
+    public User setupNewUser(TransactionUserDto transactionUserDto) {
+        //map from dto to entity
+        User user = userMapper.fromTransactionUserDtoToUser(transactionUserDto);
+        user.setUuid(UUID.randomUUID().toString());
+        user.setVerified(false);
+        user.setAccountNonExpired(true);
+        user.setAccountNonLocked(true);
+        user.setCredentialsNonExpired(true);
+        user.setEnabled(false);
+        return user;
     }
 
 }
