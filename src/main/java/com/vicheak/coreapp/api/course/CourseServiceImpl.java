@@ -6,6 +6,9 @@ import com.vicheak.coreapp.api.course.web.CourseDto;
 import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.video.VideoMapper;
+import com.vicheak.coreapp.api.video.VideoRepository;
+import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
 import com.vicheak.coreapp.spec.CourseFilter;
@@ -38,6 +41,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
+    private final VideoRepository videoRepository;
+    private final VideoMapper videoMapper;
     private final EntityManager entityManager;
 
     @Override
@@ -208,6 +213,11 @@ public class CourseServiceImpl implements CourseService {
         courseRepository.save(course);
 
         return fileDto;
+    }
+
+    @Override
+    public List<VideoDto> loadVideosByCourseUuid(String uuid) {
+        return videoMapper.fromVideoToVideoDto(videoRepository.findByCourseUuid(uuid));
     }
 
 }

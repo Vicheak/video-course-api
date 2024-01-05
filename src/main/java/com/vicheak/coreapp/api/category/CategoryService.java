@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.api.category;
 
 import com.vicheak.coreapp.api.category.web.CategoryDto;
+import com.vicheak.coreapp.api.course.web.CourseDto;
 
 import java.util.List;
 
@@ -39,5 +40,12 @@ public interface CategoryService {
      * @param name is the path parameter from client
      */
     void deleteCategoryByName(String name);
+
+    /**
+     * This method is used to load course resources by category name
+     * @param name is the path parameter from client
+     * @return List<CourseDto>
+     */
+    List<CourseDto> loadCoursesByCategoryName(String name);
 
 }

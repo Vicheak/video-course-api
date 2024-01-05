@@ -84,6 +84,12 @@
             <version>2.3.0</version>
         </dependency>
 
+        <!-- This dependency is for sending mail via Java Mail Sender -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
