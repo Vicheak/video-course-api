@@ -13,6 +13,5 @@ public record VideoDto(String uuid,
                        String imageUri,
                        LocalDateTime createdAt,
                        LocalDateTime updatedAt,
-                       String course,
-                       String author) {
+                       String course) {
 }

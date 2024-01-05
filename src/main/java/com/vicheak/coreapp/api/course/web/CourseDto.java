@@ -14,5 +14,6 @@ public record CourseDto(String uuid,
                         Integer durationInHour,
                         @JsonInclude(value = JsonInclude.Include.NON_NULL)
                         BigDecimal cost,
-                        String category) {
+                        String category,
+                        String author) {
 }

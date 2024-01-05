@@ -111,11 +111,10 @@ public class VideoServiceImpl implements VideoService {
     @Transactional
     @Override
     public void createNewVideo(TransactionVideoDto transactionVideoDto) {
-        //check if course or user does not exist
-        if (!courseRepository.existsById(transactionVideoDto.courseId())
-                || !userRepository.existsById(transactionVideoDto.userId()))
+        //check if course does not exist
+        if (!courseRepository.existsById(transactionVideoDto.courseId()))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Resource does not exist, please check!");
+                    "Course does not exist, please check!");
 
         //map from dto to entity
         Video newVideo = videoMapper.fromTransactionVideoDtoToVideo(transactionVideoDto);
@@ -136,21 +135,16 @@ public class VideoServiceImpl implements VideoService {
                                         .formatted(uuid))
                 );
 
-        //check if course or user does not exist
+        //check if course does not exist
         if (Objects.nonNull(transactionVideoDto.courseId()))
             if (!courseRepository.existsById(transactionVideoDto.courseId()))
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Course does not exist, please check!");
 
-        if (Objects.nonNull(transactionVideoDto.userId()))
-            if (!userRepository.existsById(transactionVideoDto.userId()))
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "User does not exist, please check!");
-
         //map from dto to entity
         videoMapper.fromTransactionVideoDtoToVideo(video, transactionVideoDto);
 
-        if(Objects.nonNull(transactionVideoDto.courseId())){
+        if (Objects.nonNull(transactionVideoDto.courseId())) {
             Course newCourse = courseRepository.findById(transactionVideoDto.courseId())
                     .orElseThrow(
                             () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -158,16 +152,6 @@ public class VideoServiceImpl implements VideoService {
                     );
 
             video.setCourse(newCourse);
-        }
-
-        if(Objects.nonNull(transactionVideoDto.userId())){
-            User newUser = userRepository.findById(transactionVideoDto.userId())
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                    "User has not been found in the system!")
-                    );
-
-            video.setUser(newUser);
         }
 
         //save video to the database
