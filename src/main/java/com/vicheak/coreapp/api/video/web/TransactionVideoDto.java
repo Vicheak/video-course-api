@@ -14,9 +14,5 @@ public record TransactionVideoDto(@NotBlank(message = "Video's title must not be
 
                                   @NotNull(message = "Video's course must not be null!")
                                   @Positive(message = "Video's course ID must be positive!")
-                                  Long courseId,
-
-                                  @NotNull(message = "User must not be null!")
-                                  @Positive(message = "User ID must be positive!")
-                                  Long userId) {
+                                  Long courseId) {
 }

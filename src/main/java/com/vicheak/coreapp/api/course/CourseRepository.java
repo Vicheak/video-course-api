@@ -1,5 +1,6 @@
 package com.vicheak.coreapp.api.course;
 
+import com.vicheak.coreapp.api.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -13,5 +14,9 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
     boolean existsByTitleIgnoreCase(String title);
 
     List<Course> findByCategoryName(String name);
+
+    boolean existsByUser(User author);
+
+    boolean existsByIdAndUser(Long id, User author);
 
 }

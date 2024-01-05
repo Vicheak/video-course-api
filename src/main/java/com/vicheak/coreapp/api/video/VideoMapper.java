@@ -19,14 +19,12 @@ public abstract class VideoMapper {
     }
 
     @Mapping(target = "course", source = "course.title")
-    @Mapping(target = "author", source = "user.username")
     @Mapping(target = "imageUri", expression = "java(valueInjectUtil.getImageUri(video.getImageCover()))")
     public abstract VideoDto fromVideoToVideoDto(Video video);
 
     public abstract List<VideoDto> fromVideoToVideoDto(List<Video> videos);
 
     @Mapping(target = "course.id", source = "courseId")
-    @Mapping(target = "user.id", source = "userId")
     public abstract Video fromTransactionVideoDtoToVideo(TransactionVideoDto transactionVideoDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

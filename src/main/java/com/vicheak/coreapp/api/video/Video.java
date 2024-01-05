@@ -52,8 +52,4 @@ public class Video {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
 }
