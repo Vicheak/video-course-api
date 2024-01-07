@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -143,6 +144,20 @@ public class CourseController {
                 .message("Videos loaded successfully!")
                 .timestamp(LocalDateTime.now())
                 .payload(videoDtoList)
+                .build();
+    }
+
+    @GetMapping("/me")
+    public BaseApi<?> loadCoursesByAuthenticatedUser(Authentication authentication) {
+
+        List<CourseDto> courseDtoList = courseService.loadCoursesByAuthenticatedAuthor(authentication);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("Courses loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(courseDtoList)
                 .build();
     }
 

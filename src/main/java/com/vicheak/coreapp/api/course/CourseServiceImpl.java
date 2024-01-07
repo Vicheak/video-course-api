@@ -6,11 +6,13 @@ import com.vicheak.coreapp.api.course.web.CourseDto;
 import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.user.User;
 import com.vicheak.coreapp.api.video.VideoMapper;
 import com.vicheak.coreapp.api.video.VideoRepository;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
+import com.vicheak.coreapp.security.CustomUserDetails;
 import com.vicheak.coreapp.spec.CourseFilter;
 import com.vicheak.coreapp.spec.CourseSpec;
 import com.vicheak.coreapp.util.SortUtil;
@@ -21,6 +23,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -129,6 +134,8 @@ public class CourseServiceImpl implements CourseService {
         //map from dto to entity
         Course course = courseMapper.fromTransactionCourseDtoToCourse(transactionCourseDto);
         course.setUuid(UUID.randomUUID().toString());
+        course.setNumberOfView(0L);
+        course.setNumberOfLike(0L);
 
         course = courseRepository.save(course);
 
@@ -148,6 +155,9 @@ public class CourseServiceImpl implements CourseService {
                                 "Course with uuid, %s has not been found in the system!"
                                         .formatted(uuid))
                 );
+
+        //check the security operation before give the user permission to process
+        checkSecurityOperation(course);
 
         //check if course's title already exists (except the previous title)
         if (Objects.nonNull(transactionCourseDto.title()))
@@ -192,6 +202,9 @@ public class CourseServiceImpl implements CourseService {
                                         .formatted(uuid))
                 );
 
+        //check the security operation before give the user permission to process
+        checkSecurityOperation(course);
+
         courseRepository.delete(course);
     }
 
@@ -204,6 +217,9 @@ public class CourseServiceImpl implements CourseService {
                                 "Course with uuid, %s has not been found in the system!"
                                         .formatted(uuid))
                 );
+
+        //check the security operation before give the user permission to process
+        checkSecurityOperation(course);
 
         FileDto fileDto = fileService.uploadSingleRestrictImage(file);
 
@@ -218,6 +234,40 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<VideoDto> loadVideosByCourseUuid(String uuid) {
         return videoMapper.fromVideoToVideoDto(videoRepository.findByCourseUuid(uuid));
+    }
+
+    @Override
+    public List<CourseDto> loadCoursesByAuthenticatedAuthor(Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticated = customUserDetails.getUser();
+        return courseMapper.fromCourseToCourseDto(courseRepository.findByUser(authenticated));
+    }
+
+    public void checkSecurityOperation(Course course) {
+        //check the security context holder
+        //if the user is ADMIN, allow the operation
+        //if the user is AUTHOR, allow the operation, but only with the specified courses
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+        SimpleGrantedAuthority adminAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
+
+        if (customUserDetails.getAuthorities().contains(adminAuthority))
+            return;
+
+        if (!course.getUser().getUuid().equals(authenticatedUser.getUuid()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Permission denied!");
+    }
+
+    public void checkSecurityOperationWithoutAdmin(Course course) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+
+        if (!course.getUser().getUuid().equals(authenticatedUser.getUuid()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Permission denied!");
     }
 
 }

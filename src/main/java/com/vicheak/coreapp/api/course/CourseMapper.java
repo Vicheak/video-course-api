@@ -21,8 +21,12 @@ public abstract class CourseMapper {
     @Mapping(target = "category.id", source = "categoryId")
     public abstract Course fromTransactionCourseDtoToCourse(TransactionCourseDto transactionCourseDto);
 
+    @Mapping(target = "numberOfView", source = "numberOfView")
+    @Mapping(target = "numberOfLike", source = "numberOfLike")
     @Mapping(target = "category", source = "course.category.name")
     @Mapping(target = "author", source = "user.username")
+    @Mapping(target = "createdAt", source = "createdAt")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     @Mapping(target = "imageUri", expression = "java(valueInjectUtil.getImageUri(course.getImage()))")
     public abstract CourseDto fromCourseToCourseDto(Course course);
 

@@ -26,8 +26,5 @@ public record TransactionUserDto(@NotBlank(message = "Username must not be blank
                                  @Past(message = "Date of Birth must be in the past!")
                                  LocalDate dateOfBirth,
 
-                                 @NotNull(message = "Role must not be null!")
-                                 @Size(min = 1, message = "User must have at least one role!")
-                                 Set<@NotNull(message = "Role must not be null!")
-                                 @Positive(message = "Role must be positive!") Integer> roleIds) {
+                                 Set<Integer> roleIds) {
 }

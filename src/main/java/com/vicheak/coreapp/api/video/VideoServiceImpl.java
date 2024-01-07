@@ -2,11 +2,10 @@ package com.vicheak.coreapp.api.video;
 
 import com.vicheak.coreapp.api.course.Course;
 import com.vicheak.coreapp.api.course.CourseRepository;
+import com.vicheak.coreapp.api.course.CourseServiceImpl;
 import com.vicheak.coreapp.api.course.Course_;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
-import com.vicheak.coreapp.api.user.User;
-import com.vicheak.coreapp.api.user.UserRepository;
 import com.vicheak.coreapp.api.video.web.TransactionVideoDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
@@ -36,8 +35,8 @@ public class VideoServiceImpl implements VideoService {
 
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper;
+    private final CourseServiceImpl courseService;
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
     private final FileService fileService;
 
     @Override
@@ -112,9 +111,14 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public void createNewVideo(TransactionVideoDto transactionVideoDto) {
         //check if course does not exist
-        if (!courseRepository.existsById(transactionVideoDto.courseId()))
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "Course does not exist, please check!");
+        Course course = courseRepository.findById(transactionVideoDto.courseId())
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Course does not exist in the system!")
+                );
+
+        //check the security context holder
+        courseService.checkSecurityOperationWithoutAdmin(course);
 
         //map from dto to entity
         Video newVideo = videoMapper.fromTransactionVideoDtoToVideo(transactionVideoDto);
@@ -135,6 +139,9 @@ public class VideoServiceImpl implements VideoService {
                                         .formatted(uuid))
                 );
 
+        //check the security context holder
+        courseService.checkSecurityOperationWithoutAdmin(video.getCourse());
+
         //check if course does not exist
         if (Objects.nonNull(transactionVideoDto.courseId()))
             if (!courseRepository.existsById(transactionVideoDto.courseId()))
@@ -150,6 +157,9 @@ public class VideoServiceImpl implements VideoService {
                             () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                     "Course has not been found in the system!")
                     );
+
+            //check the security context holder
+            courseService.checkSecurityOperationWithoutAdmin(newCourse);
 
             video.setCourse(newCourse);
         }
@@ -168,6 +178,9 @@ public class VideoServiceImpl implements VideoService {
                                         .formatted(uuid))
                 );
 
+        //check the security context holder
+        courseService.checkSecurityOperationWithoutAdmin(video.getCourse());
+
         videoRepository.delete(video);
     }
 
@@ -180,6 +193,9 @@ public class VideoServiceImpl implements VideoService {
                                 "Video with uuid, %s has not been found in the system!"
                                         .formatted(uuid))
                 );
+
+        //check the security context holder
+        courseService.checkSecurityOperationWithoutAdmin(video.getCourse());
 
         FileDto fileDto = fileService.uploadSingleRestrictImage(file);
 

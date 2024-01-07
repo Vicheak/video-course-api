@@ -5,6 +5,7 @@ import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.PageDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -82,5 +83,12 @@ public interface CourseService {
      * @return List<VideoDto>
      */
     List<VideoDto> loadVideosByCourseUuid(String uuid);
+
+    /**
+     * This method is used to load courses by authenticated author
+     * @param authentication is the request from client
+     * @return List<CourseDto>
+     */
+    List<CourseDto> loadCoursesByAuthenticatedAuthor(Authentication authentication);
 
 }
