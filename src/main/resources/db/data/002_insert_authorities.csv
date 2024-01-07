@@ -1,5 +1,23 @@
 authority_id,authority_name
-1,video:read
-2,video:write
-3,video:update
-4,video:delete
+1,category:read
+2,category:write
+3,category:update
+4,category:delete
+5,course:read
+6,course:write
+7,course:update
+8,course:delete
+9,video:read
+10,video:write
+11,video:update
+12,video:delete
+13,subscription:read
+14,subscription:write
+15,subscription:update
+16 ,subscription:delete
+17,user:read
+18,user:write
+19,user:update
+20,user:delete
+21,user:profile
+22,file:write

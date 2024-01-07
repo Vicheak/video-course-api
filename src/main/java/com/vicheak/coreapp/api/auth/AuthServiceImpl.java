@@ -8,11 +8,15 @@ import com.vicheak.coreapp.api.mail.Mail;
 import com.vicheak.coreapp.api.mail.MailService;
 import com.vicheak.coreapp.api.user.*;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
+import com.vicheak.coreapp.security.CustomUserDetails;
 import com.vicheak.coreapp.util.RandomUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserServiceImpl userService;
     private final UserRoleRepository userRoleRepository;
     private final MailService mailService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${spring.mail.username}")
     private String adminMail;
@@ -86,13 +91,24 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public void applyAuthor(ApplyAuthorDto applyAuthorDto) throws MessagingException {
+        //check security context holder
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+        checkIfUserIsAuthor(authenticatedUser);
+
         //load the credentials
-        User verifiedUser = authRepository.findByEmailAndPasswordAndPhoneNumberAndVerifiedTrueAndEnabledTrue(
-                        applyAuthorDto.email(), applyAuthorDto.password(), applyAuthorDto.phoneNumber())
+        User verifiedUser = authRepository.findByEmailAndPhoneNumberAndVerifiedTrueAndEnabledTrue(
+                        applyAuthorDto.email(), applyAuthorDto.phoneNumber())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                                 "Author application has been failed!")
                 );
+
+        //check encrypted raw password
+        if (!passwordEncoder.matches(applyAuthorDto.password(), verifiedUser.getPassword()))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Author application has been failed!");
 
         updateVerifiedCodeAndSendMail(verifiedUser, "Java School Author Application");
     }
@@ -138,6 +154,15 @@ public class AuthServiceImpl implements AuthService {
         verifiedMail.setMetaData(verifiedCode);
 
         mailService.sendMail(verifiedMail);
+    }
+
+    private void checkIfUserIsAuthor(User user) {
+        List<UserRole> userRoles = user.getUserRoles();
+        userRoles.forEach(userRole -> {
+            if (userRole.getRole().getName().equals("AUTHOR"))
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "You are already an author in our system!");
+        });
     }
 
 }

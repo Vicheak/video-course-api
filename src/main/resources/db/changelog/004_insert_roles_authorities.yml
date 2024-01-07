@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004_insert_roles_authorities
+      author: suonvicheak991@gmail.com
+      changes:
+        - loadData:
+            tableName: roles_authorities
+            columns:
+              - column:
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  name: auth_id
+                  type: INTEGER
+            file: db/data/004_insert_roles_authorities.csv

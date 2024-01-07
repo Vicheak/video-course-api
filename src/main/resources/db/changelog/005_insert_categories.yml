@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005_insert_categories
+      author: suonvicheak991@gmail.com
+      changes:
+        - loadData:
+            tableName: categories
+            columns:
+              - column:
+                  name: category_id
+                  type: INTEGER
+              - column:
+                  name: category_name
+                  type: VARCHAR
+            file: db/data/005_insert_categories.csv
