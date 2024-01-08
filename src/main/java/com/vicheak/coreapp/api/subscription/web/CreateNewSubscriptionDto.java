@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.Set;
 
-public record CreateNewSubscriptionDto(@NotBlank(message = "Subscriber UUID must not be blank!")
-                                       String subscriberUuid,
-
-                                       @NotBlank(message = "Author UUID must not be blank!")
+public record CreateNewSubscriptionDto(@NotBlank(message = "Author UUID must not be blank!")
                                        String authorUuid,
 
                                        @NotNull(message = "Course must not be null!")

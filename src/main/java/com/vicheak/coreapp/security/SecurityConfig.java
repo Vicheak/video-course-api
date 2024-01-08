@@ -55,6 +55,7 @@ public class SecurityConfig {
             auth.requestMatchers(HttpMethod.DELETE, "/api/v1/courses/**").hasAuthority("course:delete");
 
             //video security
+            auth.requestMatchers(HttpMethod.GET, "/api/v1/videos/me").hasAuthority("ROLE_AUTHOR");
             auth.requestMatchers(HttpMethod.GET, "/api/v1/videos/**").hasAuthority("video:read");
             auth.requestMatchers(HttpMethod.POST, "/api/v1/videos/**").hasAuthority("video:write");
             auth.requestMatchers(HttpMethod.PUT, "/api/v1/videos/**").hasAuthority("video:update");
@@ -65,6 +66,7 @@ public class SecurityConfig {
             auth.requestMatchers(HttpMethod.POST, "/api/v1/files/**").hasAuthority("file:write");
 
             //user security
+            auth.requestMatchers(HttpMethod.GET, "/api/v1/users/me").hasAuthority("user:profile");
             auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAuthority("user:read");
             auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAuthority("user:write");
             auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/uploadImage/**").hasAuthority("user:update");

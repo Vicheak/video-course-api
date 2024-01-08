@@ -229,6 +229,13 @@ public class UserServiceImpl implements UserService {
         return fileDto;
     }
 
+    @Override
+    public UserDto loadUserProfile(Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+        return userMapper.fromUserToUserDto(authenticatedUser);
+    }
+
     private @NonNull List<UserRole> updateUserRolesTransaction(@NonNull User user, @NonNull Set<Integer> roleIds) {
         List<UserRole> userRoles = new ArrayList<>();
 

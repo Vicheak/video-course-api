@@ -3,6 +3,7 @@ package com.vicheak.coreapp.api.user;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
 import com.vicheak.coreapp.api.user.web.UserDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -55,5 +56,12 @@ public interface UserService {
      * @return FileDto
      */
     FileDto uploadUserPhotoByUuid(String uuid, MultipartFile file);
+
+    /**
+     * This method is used to load user profile by authenticated user
+     * @param authentication is the request from client
+     * @return UserDto
+     */
+    UserDto loadUserProfile(Authentication authentication);
 
 }

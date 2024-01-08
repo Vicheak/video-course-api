@@ -148,7 +148,7 @@ public class CourseController {
     }
 
     @GetMapping("/me")
-    public BaseApi<?> loadCoursesByAuthenticatedUser(Authentication authentication) {
+    public BaseApi<?> loadCoursesByAuthenticatedAuthor(Authentication authentication) {
 
         List<CourseDto> courseDtoList = courseService.loadCoursesByAuthenticatedAuthor(authentication);
 

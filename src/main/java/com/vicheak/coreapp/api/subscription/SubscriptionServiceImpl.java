@@ -5,10 +5,14 @@ import com.vicheak.coreapp.api.course.CourseRepository;
 import com.vicheak.coreapp.api.subscription.web.*;
 import com.vicheak.coreapp.api.user.User;
 import com.vicheak.coreapp.api.user.UserRepository;
+import com.vicheak.coreapp.api.user.UserRole;
 import com.vicheak.coreapp.exception.ApiException;
+import com.vicheak.coreapp.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -59,7 +63,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         Map<User, List<Subscription>> subscriptionAuthorMap = subscriptions.stream()
                 .collect(Collectors.groupingBy(Subscription::getSubscriber));
 
-        for(Map.Entry<User, List<Subscription>> entry : subscriptionAuthorMap.entrySet()){
+        for (Map.Entry<User, List<Subscription>> entry : subscriptionAuthorMap.entrySet()) {
             User subscriber = entry.getKey();
             List<Subscription> subscriptionSubscribers = entry.getValue();
 
@@ -94,13 +98,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Transactional
     @Override
     public void createNewSubscription(CreateNewSubscriptionDto createNewSubscriptionDto) {
-        //check subscriber uuid if exists
-        User subscriber = userRepository.findByUuid(createNewSubscriptionDto.subscriberUuid())
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "Subscriber with uuid, %s has not been found in the system!"
-                                        .formatted(createNewSubscriptionDto.subscriberUuid()))
-                );
+        //load authenticated user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User subscriber = customUserDetails.getUser();
 
         //check author uuid if exists
         User author = userRepository.findByUuid(createNewSubscriptionDto.authorUuid())
@@ -110,7 +111,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                                         .formatted(createNewSubscriptionDto.authorUuid()))
                 );
 
-        if (subscriber == author)
+        //check if the user is author
+        if (!checkIfUserIsAuthor(author))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "You must subscribe to the author!");
+
+        if (subscriber.getUuid().equals(author.getUuid()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Subscriber must subscribe to another author!");
 
@@ -171,6 +177,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionDetail.setApproved(approveSubscriptionDto.approve());
 
         subscriptionDetailRepository.save(subscriptionDetail);
+    }
+
+    private boolean checkIfUserIsAuthor(User user) {
+        List<UserRole> userRoles = user.getUserRoles();
+        for (UserRole userRole : userRoles)
+            if (userRole.getRole().getName().equals("AUTHOR")) return true;
+        return false;
     }
 
     private void checkCourseIfExist(Set<Long> courseIds) {

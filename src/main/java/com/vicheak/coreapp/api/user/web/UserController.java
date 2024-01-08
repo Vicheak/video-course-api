@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -79,6 +80,20 @@ public class UserController {
     public FileDto uploadUserPhotoByUuid(@PathVariable String uuid,
                                          @RequestPart MultipartFile file) {
         return userService.uploadUserPhotoByUuid(uuid, file);
+    }
+
+    @GetMapping("/me")
+    public BaseApi<?> loadUserProfile(Authentication authentication) {
+
+        UserDto userDto = userService.loadUserProfile(authentication);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("User profile loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(userDto)
+                .build();
     }
 
 }
