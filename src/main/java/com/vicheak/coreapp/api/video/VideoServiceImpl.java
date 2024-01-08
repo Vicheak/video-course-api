@@ -6,10 +6,12 @@ import com.vicheak.coreapp.api.course.CourseServiceImpl;
 import com.vicheak.coreapp.api.course.Course_;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.user.User;
 import com.vicheak.coreapp.api.video.web.TransactionVideoDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
+import com.vicheak.coreapp.security.CustomUserDetails;
 import com.vicheak.coreapp.spec.VideoFilter;
 import com.vicheak.coreapp.spec.VideoSpec;
 import com.vicheak.coreapp.util.SortUtil;
@@ -18,16 +20,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -205,6 +205,19 @@ public class VideoServiceImpl implements VideoService {
         videoRepository.save(video);
 
         return fileDto;
+    }
+
+    @Override
+    public List<VideoDto> loadVideosByAuthenticatedAuthor(Authentication authentication) {
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticated = customUserDetails.getUser();
+        List<Course> courses = courseRepository.findByUser(authenticated);
+        List<Video> videos = new ArrayList<>();
+
+        courses.forEach(course ->
+                videos.addAll(videoRepository.findByCourse(course)));
+
+        return videoMapper.fromVideoToVideoDto(videos);
     }
 
 }

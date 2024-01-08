@@ -4,6 +4,7 @@ import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.video.web.TransactionVideoDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.PageDto;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -64,5 +65,12 @@ public interface VideoService {
      * @return FileDto
      */
     FileDto uploadVideoImageByUuid(String uuid, MultipartFile file);
+
+    /**
+     * This method is used to load videos by authenticated author
+     * @param authentication is the request from client
+     * @return List<VideoDto>
+     */
+    List<VideoDto> loadVideosByAuthenticatedAuthor(Authentication authentication);
 
 }

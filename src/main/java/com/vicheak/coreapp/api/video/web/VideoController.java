@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -103,6 +104,20 @@ public class VideoController {
     public FileDto uploadVideoImageByUuid(@PathVariable String uuid,
                                           @RequestPart MultipartFile file) {
         return videoService.uploadVideoImageByUuid(uuid, file);
+    }
+
+    @GetMapping("/me")
+    public BaseApi<?> loadVideosByAuthenticatedAuthor(Authentication authentication) {
+
+        List<VideoDto> videoDtoList = videoService.loadVideosByAuthenticatedAuthor(authentication);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("Videos loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(videoDtoList)
+                .build();
     }
 
 }
