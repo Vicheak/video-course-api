@@ -35,14 +35,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final CourseRepository courseRepository;
 
     @Override
-    public SubscriptionAuthorDto loadSubscriptionByAuthorUuid(String uuid) {
-        //load author by uuid
-        User author = userRepository.findByUuid(uuid)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "Author with uuid, %s has not been found in the system!"
-                                        .formatted(uuid))
-                );
+    public SubscriptionAuthorDto loadSubscriptionByAuthenticatedAuthor(Authentication authentication) {
+        //load author resource from authenticated user
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User author = customUserDetails.getUser();
 
         //load subscriptions by the existing author
         List<Subscription> subscriptions = subscriptionRepository.findByAuthor(author);
@@ -93,6 +89,41 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionAuthorDto.setSubscriptions(subscriptionDtoList);
 
         return subscriptionAuthorDto;
+    }
+
+    @Override
+    public SubscriptionDto loadSubscriptionByAuthenticatedSubscriber(Authentication authentication) {
+        //load subscriber resource from authenticated user
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User subscriber = customUserDetails.getUser();
+
+        //load subscriptions by the existing subscriber
+        List<Subscription> subscriptions = subscriptionRepository.findBySubscriber(subscriber);
+
+        //check if the subscriber has no subscription request
+        if (subscriptions.isEmpty())
+            throw new ApiException(HttpStatus.NOT_FOUND,
+                    "You have no subscription request!");
+
+        //map from subscriber to build basic subscription detail dto information
+        SubscriptionDto subscriptionDto =
+                subscriptionMapper.fromSubscriberToSubscriptionDto(subscriber);
+
+        //this code is to build list of subscription detail dto
+        List<SubscriptionDetailDto> subscriptionDetailDtoList = new ArrayList<>();
+
+        subscriptions.forEach(subscription -> {
+            List<SubscriptionDetail> subscriptionDetails = subscription.getSubscriptionDetails();
+
+            subscriptionDetails.forEach(subscriptionDetail -> {
+                //map from subscription detail to build basic subscription detail dto
+                subscriptionDetailDtoList.add(subscriptionMapper.fromSubscriptionDetailToSubscriptionDetailDto(subscriptionDetail));
+            });
+        });
+
+        subscriptionDto.setSubscriptionDetails(subscriptionDetailDtoList);
+
+        return subscriptionDto;
     }
 
     @Transactional
@@ -174,9 +205,34 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                                 "Subscription detail does not exist with the course!")
                 );
 
+        //check the subscription detail if it belongs to the authenticated author
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticatedAuthor = customUserDetails.getUser();
+        checkSubscriptionAuthor(subscriptionDetail, authenticatedAuthor);
+
         subscriptionDetail.setApproved(approveSubscriptionDto.approve());
 
         subscriptionDetailRepository.save(subscriptionDetail);
+    }
+
+    @Transactional
+    @Override
+    public void removeSubscriptionDetailById(Long subscriptionDetailId) {
+        //load subscription detail resource by id
+        SubscriptionDetail subscriptionDetail = subscriptionDetailRepository.findById(subscriptionDetailId)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Subscription detail ID has not been found in the system!")
+                );
+
+        //check the subscription detail if it belongs to the authenticated author
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticatedAuthor = customUserDetails.getUser();
+        checkSubscriptionAuthor(subscriptionDetail, authenticatedAuthor);
+
+        subscriptionDetailRepository.delete(subscriptionDetail);
     }
 
     private boolean checkIfUserIsAuthor(User user) {
@@ -220,6 +276,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 });
             });
         }
+    }
+
+    private void checkSubscriptionAuthor(SubscriptionDetail subscriptionDetail, User authenticatedAuthor) {
+        Subscription subscription = subscriptionDetail.getSubscription();
+        User author = subscription.getAuthor();
+        if (!authenticatedAuthor.getUuid().equals(author.getUuid()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Permission denied!");
     }
 
 }

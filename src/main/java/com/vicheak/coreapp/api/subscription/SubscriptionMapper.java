@@ -20,6 +20,8 @@ public interface SubscriptionMapper {
     @Mapping(target = "subscriberEmail", source = "email")
     SubscriptionDto fromSubscriberToSubscriptionDto(User subscriber);
 
+    @Mapping(target = "subscriptionDetailId", source = "id")
+    @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "courseUuid", source = "course.uuid")
     @Mapping(target = "courseTitle", source = "course.title")
     @Mapping(target = "coursePrice", source = "cost")

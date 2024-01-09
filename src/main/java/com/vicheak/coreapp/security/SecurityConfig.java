@@ -49,6 +49,7 @@ public class SecurityConfig {
             //course security
             auth.requestMatchers(HttpMethod.GET, "/api/v1/courses/me").hasAuthority("ROLE_AUTHOR");
             auth.requestMatchers(HttpMethod.GET, "/api/v1/courses/**").hasAuthority("course:read");
+            auth.requestMatchers(HttpMethod.POST, "/api/v1/courses/like").authenticated();
             auth.requestMatchers(HttpMethod.POST, "/api/v1/courses/**").hasAuthority("course:write");
             auth.requestMatchers(HttpMethod.PUT, "/api/v1/courses/**").hasAuthority("course:update");
             auth.requestMatchers(HttpMethod.PATCH, "/api/v1/courses/**").hasAuthority("course:update");
@@ -75,7 +76,11 @@ public class SecurityConfig {
             auth.requestMatchers(HttpMethod.DELETE, "/api/v1/users/**").hasAuthority("user:delete");
 
             //subscription security
-            //...
+            auth.requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/author/reports").hasAuthority("ROLE_AUTHOR");
+            auth.requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/**").hasAuthority("subscription:read");
+            auth.requestMatchers(HttpMethod.POST, "/api/v1/subscriptions/**").hasAuthority("subscription:write");
+            auth.requestMatchers(HttpMethod.PUT, "/api/v1/subscriptions/**").hasAuthority("subscription:update");
+            auth.requestMatchers(HttpMethod.DELETE, "/api/v1/subscriptions/**").hasAuthority("ROLE_AUTHOR");
 
             auth.anyRequest().authenticated();
         });

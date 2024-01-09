@@ -3,6 +3,7 @@ package com.vicheak.coreapp.api.course;
 import com.vicheak.coreapp.api.category.Category;
 import com.vicheak.coreapp.api.category.CategoryRepository;
 import com.vicheak.coreapp.api.course.web.CourseDto;
+import com.vicheak.coreapp.api.course.web.LikeDto;
 import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
@@ -32,10 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +42,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
     private final CourseMapper courseMapper;
+    private final CourseInteractionRepository courseInteractionRepository;
     private final CategoryRepository categoryRepository;
     private final FileService fileService;
     private final VideoRepository videoRepository;
@@ -55,6 +54,7 @@ public class CourseServiceImpl implements CourseService {
         return courseMapper.fromCourseToCourseDto(courseRepository.findAll());
     }
 
+    @Transactional
     @Override
     public CourseDto loadCourseByUuid(String uuid) {
         Course course = courseRepository.findByUuid(uuid)
@@ -63,6 +63,39 @@ public class CourseServiceImpl implements CourseService {
                                 "Course with uuid, %s has not been found in the system!"
                                         .formatted(uuid))
                 );
+
+        //number of views, user views the course
+        //the same user views the course, then number of views won't increase
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+
+        //check if the authenticated user already viewed the course
+        Optional<CourseInteraction> courseInteractionOptional =
+                courseInteractionRepository.findByCourseAndUser(course, authenticatedUser);
+
+        //if user never views this course
+        if (courseInteractionOptional.isEmpty()) {
+            //create new course interaction for the authenticated user
+            CourseInteraction courseInteraction = new CourseInteraction();
+            courseInteraction.setCourse(course);
+            courseInteraction.setUser(authenticatedUser);
+            courseInteraction.setIsViewed(true);
+            courseInteraction.setIsLiked(false);
+            course.setNumberOfView(course.getNumberOfView() + 1);
+
+            //save interaction to the database
+            courseInteractionRepository.save(courseInteraction);
+        } else {
+            CourseInteraction courseInteraction = courseInteractionOptional.get();
+            if (!courseInteraction.getIsViewed()){
+                courseInteraction.setIsViewed(true);
+                course.setNumberOfView(course.getNumberOfView() + 1);
+                courseInteractionRepository.save(courseInteraction);
+            }
+        }
+
+        courseRepository.save(course);
 
         return courseMapper.fromCourseToCourseDto(course);
     }
@@ -241,6 +274,49 @@ public class CourseServiceImpl implements CourseService {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
         User authenticated = customUserDetails.getUser();
         return courseMapper.fromCourseToCourseDto(courseRepository.findByUser(authenticated));
+    }
+
+    @Override
+    public void likeCourseByUser(LikeDto likeDto, Authentication authentication) {
+        Course course = courseRepository.findByUuid(likeDto.courseUuid())
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Course with uuid, %s has not been found in the system!"
+                                        .formatted(likeDto.courseUuid()))
+                );
+
+        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        User authenticatedUser = customUserDetails.getUser();
+
+        //check if the authenticated user already liked the course
+        Optional<CourseInteraction> courseInteractionOptional =
+                courseInteractionRepository.findByCourseAndUser(course, authenticatedUser);
+
+        if (courseInteractionOptional.isEmpty()) {
+            //create new course interaction for the authenticated user
+            CourseInteraction courseInteraction = new CourseInteraction();
+            courseInteraction.setCourse(course);
+            courseInteraction.setUser(authenticatedUser);
+            courseInteraction.setIsViewed(false);
+            courseInteraction.setIsLiked(likeDto.isLike());
+            course.setNumberOfLike(likeDto.isLike() ?
+                    course.getNumberOfLike() + 1 : course.getNumberOfLike());
+
+            //save interaction to the database
+            courseInteractionRepository.save(courseInteraction);
+        } else {
+            CourseInteraction courseInteraction = courseInteractionOptional.get();
+            if (likeDto.isLike() && courseInteraction.getIsLiked()) return;
+
+            //can be like or dislike
+            courseInteraction.setIsLiked(likeDto.isLike());
+            courseInteractionRepository.save(courseInteraction);
+
+            course.setNumberOfLike(likeDto.isLike() ?
+                    course.getNumberOfLike() + 1 : course.getNumberOfLike() - 1);
+        }
+
+        courseRepository.save(course);
     }
 
     public void checkSecurityOperation(Course course) {

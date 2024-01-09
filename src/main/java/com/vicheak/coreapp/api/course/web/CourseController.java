@@ -161,4 +161,20 @@ public class CourseController {
                 .build();
     }
 
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/like")
+    public BaseApi<?> likeCourseByUser(@RequestBody @Valid LikeDto likeDto,
+                                       Authentication authentication) {
+
+        courseService.likeCourseByUser(likeDto, authentication);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.CREATED.value())
+                .message("A course has been interacted!")
+                .timestamp(LocalDateTime.now())
+                .payload("Operated successfully")
+                .build();
+    }
+
 }
