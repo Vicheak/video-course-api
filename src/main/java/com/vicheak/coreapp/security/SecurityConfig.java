@@ -58,7 +58,11 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
             //permitted endpoint without security
-            auth.requestMatchers("/file/**").permitAll();
+            auth.requestMatchers(
+                    "/file/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**").permitAll();
+
             //auth security
             auth.requestMatchers(
                     "/api/v1/auth/login",
