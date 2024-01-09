@@ -1,478 +1,543 @@
 databaseChangeLog:
-- changeSet:
-    id: 001_init_db_structure
-    author: suonvicheak991@gmail.com
-    changes:
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: authorities_pkey
-                name: authority_id
-                type: INTEGER
-            - column:
-                constraints:
-                  nullable: false
-                name: authority_name
-                type: VARCHAR(120)
-          tableName: authorities
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: categories_pkey
-                name: category_id
-                type: INTEGER
-            - column:
-                constraints:
-                  nullable: false
-                name: category_name
-                type: VARCHAR(100)
-          tableName: categories
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: courses_pkey
-                name: course_id
-                type: BIGINT
-            - column:
-                name: course_cost
-                type: numeric(38, 2)
-            - column:
-                name: course_description
-                type: TEXT
-            - column:
-                name: course_duration_in_hour
-                type: INTEGER
-            - column:
-                name: course_image
-                type: VARCHAR(255)
-            - column:
-                name: number_of_like
-                type: BIGINT
-            - column:
-                name: number_of_view
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: course_title
-                type: VARCHAR(150)
-            - column:
-                constraints:
-                  nullable: false
-                name: course_uuid
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: category_id
-                type: INTEGER
-            - column:
-                constraints:
-                  nullable: false
-                name: user_id
-                type: BIGINT
-          tableName: courses
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: roles_pkey
-                name: role_id
-                type: INTEGER
-            - column:
-                constraints:
-                  nullable: false
-                name: role_name
-                type: VARCHAR(100)
-          tableName: roles
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: subscription_details_pkey
-                name: subscription_detail_id
-                type: BIGINT
-            - column:
-                name: approved
-                type: BOOLEAN
-            - column:
-                constraints:
-                  nullable: false
-                name: subscription_cost
-                type: numeric(38, 2)
-            - column:
-                constraints:
-                  nullable: false
-                name: course_id
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: subscription_id
-                type: BIGINT
-          tableName: subscription_details
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: subscriptions_pkey
-                name: subscription_id
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: author_id
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: subscriber_id
-                type: BIGINT
-          tableName: subscriptions
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: users_pkey
-                name: user_id
-                type: BIGINT
-            - column:
-                name: account_non_expired
-                type: BOOLEAN
-            - column:
-                name: account_non_locked
-                type: BOOLEAN
-            - column:
-                name: credentials_non_expired
-                type: BOOLEAN
-            - column:
-                name: user_date_of_birth
-                type: date
-            - column:
-                constraints:
-                  nullable: false
-                name: user_email
-                type: VARCHAR(150)
-            - column:
-                name: enabled
-                type: BOOLEAN
-            - column:
-                constraints:
-                  nullable: false
-                name: user_gender
-                type: VARCHAR(50)
-            - column:
-                name: user_join_date
-                type: TIMESTAMP WITHOUT TIME ZONE
-            - column:
-                constraints:
-                  nullable: false
-                name: user_password
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: user_phone_number
-                type: VARCHAR(100)
-            - column:
-                name: user_photo
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: user_username
-                type: VARCHAR(150)
-            - column:
-                constraints:
-                  nullable: false
-                name: user_uuid
-                type: VARCHAR(255)
-            - column:
-                name: verified
-                type: BOOLEAN
-            - column:
-                name: verified_code
-                type: VARCHAR(255)
-          tableName: users
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: users_roles_pkey
-                name: user_role_id
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: created_at
-                type: TIMESTAMP WITHOUT TIME ZONE
-            - column:
-                constraints:
-                  nullable: false
-                name: updated_at
-                type: TIMESTAMP WITHOUT TIME ZONE
-            - column:
-                name: role_id
-                type: INTEGER
-            - column:
-                name: user_id
-                type: BIGINT
-          tableName: users_roles
-      - createTable:
-          columns:
-            - column:
-                autoIncrement: true
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: videos_pkey
-                name: video_id
-                type: BIGINT
-            - column:
-                constraints:
-                  nullable: false
-                name: video_created_at
-                type: TIMESTAMP WITHOUT TIME ZONE
-            - column:
-                name: video_description
-                type: TEXT
-            - column:
-                name: video_image_cover
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: video_title
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: video_updated_at
-                type: TIMESTAMP WITHOUT TIME ZONE
-            - column:
-                constraints:
-                  nullable: false
-                name: video_uuid
-                type: VARCHAR(255)
-            - column:
-                constraints:
-                  nullable: false
-                name: video_link
-                type: VARCHAR(255)
-            - column:
-                name: course_id
-                type: BIGINT
-          tableName: videos
-      - createTable:
-          columns:
-            - column:
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: roles_authorities_pkey
-                name: role_id
-                type: INTEGER
-            - column:
-                constraints:
-                  nullable: false
-                  primaryKey: true
-                  primaryKeyName: roles_authorities_pkey
-                name: auth_id
-                type: INTEGER
-          tableName: roles_authorities
-      - addUniqueConstraint:
-          columnNames: authority_name
-          constraintName: uk_4gictf1bsadhdebtwbanm6d21
-          tableName: authorities
-      - addUniqueConstraint:
-          columnNames: category_name
-          constraintName: uk_41g4n0emuvcm3qyf1f6cn43c0
-          tableName: categories
-      - addUniqueConstraint:
-          columnNames: course_title
-          constraintName: uk_cjsjcjmok6ooqbececvhacmpr
-          tableName: courses
-      - addUniqueConstraint:
-          columnNames: course_uuid
-          constraintName: uk_gjyju0yxx2rk2ca9y6xxc3vq
-          tableName: courses
-      - addUniqueConstraint:
-          columnNames: role_name
-          constraintName: uk_716hgxp60ym1lifrdgp67xt5k
-          tableName: roles
-      - addUniqueConstraint:
-          columnNames: course_id, subscription_id
-          constraintName: ukg76axr2atmwr0awrimrnlamme
-          tableName: subscription_details
-      - addUniqueConstraint:
-          columnNames: user_email
-          constraintName: uk_33uo7vet9c79ydfuwg1w848f
-          tableName: users
-      - addUniqueConstraint:
-          columnNames: user_uuid
-          constraintName: uk_4mcg6l0va97nbd8o9tqpeg104
-          tableName: users
-      - addUniqueConstraint:
-          columnNames: user_username
-          constraintName: uk_bcy4eb602iyorjjc2cklf53cf
-          tableName: users
-      - addUniqueConstraint:
-          columnNames: user_phone_number
-          constraintName: uk_te75vby8rv7y1qqply0jty8cy
-          tableName: users
-      - addUniqueConstraint:
-          columnNames: user_id, role_id
-          constraintName: ukq3r1u8cne2rw2hkr899xuh7vj
-          tableName: users_roles
-      - addUniqueConstraint:
-          columnNames: video_uuid
-          constraintName: uk_fyw54ldr8tm5wmev84o92lqr2
-          tableName: videos
-      - addForeignKeyConstraint:
-          baseColumnNames: user_id
-          baseTableName: users_roles
-          constraintName: fk2o0jvgh89lemvvo17cbqvdxaa
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: user_id
-          referencedTableName: users
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: author_id
-          baseTableName: subscriptions
-          constraintName: fk4bxo233kaf6qxfj4g4jp55bnx
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: user_id
-          referencedTableName: users
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: user_id
-          baseTableName: courses
-          constraintName: fk51k53m6m5gi9n91fnlxkxgpmv
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: user_id
-          referencedTableName: users
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: category_id
-          baseTableName: courses
-          constraintName: fk72l5dj585nq7i6xxv1vj51lyn
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: category_id
-          referencedTableName: categories
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: course_id
-          baseTableName: subscription_details
-          constraintName: fkbprhkgjstwhny3l0wb7voqcq2
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: course_id
-          referencedTableName: courses
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: auth_id
-          baseTableName: roles_authorities
-          constraintName: fkdj8um20jnggnp5gjs4021dgfu
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: authority_id
-          referencedTableName: authorities
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: role_id
-          baseTableName: users_roles
-          constraintName: fkj6m8fwv7oqv74fcehir1a9ffy
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: role_id
-          referencedTableName: roles
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: subscription_id
-          baseTableName: subscription_details
-          constraintName: fkoep5c7s644f1it0n71w87q17i
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: subscription_id
-          referencedTableName: subscriptions
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: subscriber_id
-          baseTableName: subscriptions
-          constraintName: fkoodc4352epkjrvxx79odlxbji
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: user_id
-          referencedTableName: users
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: role_id
-          baseTableName: roles_authorities
-          constraintName: fkq3iqpff34tgtkvnn545a648cb
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: role_id
-          referencedTableName: roles
-          validate: true
-      - addForeignKeyConstraint:
-          baseColumnNames: course_id
-          baseTableName: videos
-          constraintName: fkrccvc1a5qx2dqsyienwhuk66j
-          deferrable: false
-          initiallyDeferred: false
-          onDelete: NO ACTION
-          onUpdate: NO ACTION
-          referencedColumnNames: course_id
-          referencedTableName: courses
-          validate: true
+  - changeSet:
+      id: 001_init_db_structure
+      author: suonvicheak991@gmail.com
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: videos_pkey
+                  name: video_id
+                  startWith: 6
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: video_description
+                  type: TEXT
+              - column:
+                  name: video_image_cover
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_title
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_uuid
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_link
+                  type: VARCHAR(255)
+              - column:
+                  name: course_id
+                  type: BIGINT
+            tableName: videos
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: courses_interations_pkey
+                  name: course_interaction_id
+                  startWith: 15
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: is_liked
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: is_viewed
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: course_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+            tableName: courses_interations
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: users_pkey
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  name: account_non_expired
+                  type: BOOLEAN
+              - column:
+                  name: account_non_locked
+                  type: BOOLEAN
+              - column:
+                  name: credentials_non_expired
+                  type: BOOLEAN
+              - column:
+                  name: user_date_of_birth
+                  type: date
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_email
+                  type: VARCHAR(150)
+              - column:
+                  name: enabled
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_gender
+                  type: VARCHAR(50)
+              - column:
+                  name: user_join_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_password
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_phone_number
+                  type: VARCHAR(100)
+              - column:
+                  name: user_photo
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_username
+                  type: VARCHAR(150)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_uuid
+                  type: VARCHAR(255)
+              - column:
+                  name: verified
+                  type: BOOLEAN
+              - column:
+                  name: verified_code
+                  type: VARCHAR(255)
+            tableName: users
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: categories_pkey
+                  name: category_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: category_name
+                  type: VARCHAR(100)
+            tableName: categories
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: authorities_pkey
+                  name: authority_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: authority_name
+                  type: VARCHAR(120)
+            tableName: authorities
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: roles_pkey
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: role_name
+                  type: VARCHAR(100)
+            tableName: roles
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: courses_pkey
+                  name: course_id
+                  type: BIGINT
+              - column:
+                  name: course_cost
+                  type: numeric(38, 2)
+              - column:
+                  name: course_description
+                  type: TEXT
+              - column:
+                  name: course_duration_in_hour
+                  type: INTEGER
+              - column:
+                  name: course_image
+                  type: VARCHAR(255)
+              - column:
+                  name: number_of_like
+                  type: BIGINT
+              - column:
+                  name: number_of_view
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: course_title
+                  type: VARCHAR(150)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: course_uuid
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: category_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: courses
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: subscription_details_pkey
+                  name: subscription_detail_id
+                  type: BIGINT
+              - column:
+                  name: approved
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: subscription_cost
+                  type: numeric(38, 2)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: course_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: subscription_id
+                  type: BIGINT
+            tableName: subscription_details
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: users_roles_pkey
+                  name: user_role_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  name: user_id
+                  type: BIGINT
+            tableName: users_roles
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: roles_authorities_pkey
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: roles_authorities_pkey
+                  name: auth_id
+                  type: INTEGER
+            tableName: roles_authorities
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: subscriptions_pkey
+                  name: subscription_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: author_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: subscriber_id
+                  type: BIGINT
+            tableName: subscriptions
+        - addUniqueConstraint:
+            columnNames: video_uuid
+            constraintName: uk_fyw54ldr8tm5wmev84o92lqr2
+            tableName: videos
+        - addUniqueConstraint:
+            columnNames: user_email
+            constraintName: uk_33uo7vet9c79ydfuwg1w848f
+            tableName: users
+        - addUniqueConstraint:
+            columnNames: user_uuid
+            constraintName: uk_4mcg6l0va97nbd8o9tqpeg104
+            tableName: users
+        - addUniqueConstraint:
+            columnNames: user_username
+            constraintName: uk_bcy4eb602iyorjjc2cklf53cf
+            tableName: users
+        - addUniqueConstraint:
+            columnNames: user_phone_number
+            constraintName: uk_te75vby8rv7y1qqply0jty8cy
+            tableName: users
+        - addUniqueConstraint:
+            columnNames: category_name
+            constraintName: uk_41g4n0emuvcm3qyf1f6cn43c0
+            tableName: categories
+        - addUniqueConstraint:
+            columnNames: authority_name
+            constraintName: uk_4gictf1bsadhdebtwbanm6d21
+            tableName: authorities
+        - addUniqueConstraint:
+            columnNames: role_name
+            constraintName: uk_716hgxp60ym1lifrdgp67xt5k
+            tableName: roles
+        - addUniqueConstraint:
+            columnNames: course_title
+            constraintName: uk_cjsjcjmok6ooqbececvhacmpr
+            tableName: courses
+        - addUniqueConstraint:
+            columnNames: course_uuid
+            constraintName: uk_gjyju0yxx2rk2ca9y6xxc3vq
+            tableName: courses
+        - addUniqueConstraint:
+            columnNames: course_id, subscription_id
+            constraintName: ukg76axr2atmwr0awrimrnlamme
+            tableName: subscription_details
+        - addUniqueConstraint:
+            columnNames: user_id, role_id
+            constraintName: ukq3r1u8cne2rw2hkr899xuh7vj
+            tableName: users_roles
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: users_roles
+            constraintName: fk2o0jvgh89lemvvo17cbqvdxaa
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: user_id
+            referencedTableName: users
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: author_id
+            baseTableName: subscriptions
+            constraintName: fk4bxo233kaf6qxfj4g4jp55bnx
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: user_id
+            referencedTableName: users
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: courses
+            constraintName: fk51k53m6m5gi9n91fnlxkxgpmv
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: user_id
+            referencedTableName: users
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: course_id
+            baseTableName: courses_interations
+            constraintName: fk70nctutappt74ags0phy6iln3
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: course_id
+            referencedTableName: courses
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: category_id
+            baseTableName: courses
+            constraintName: fk72l5dj585nq7i6xxv1vj51lyn
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: category_id
+            referencedTableName: categories
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: course_id
+            baseTableName: subscription_details
+            constraintName: fkbprhkgjstwhny3l0wb7voqcq2
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: course_id
+            referencedTableName: courses
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: auth_id
+            baseTableName: roles_authorities
+            constraintName: fkdj8um20jnggnp5gjs4021dgfu
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: authority_id
+            referencedTableName: authorities
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: courses_interations
+            constraintName: fkhja8wpgghilof2cgo5ridvgca
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: user_id
+            referencedTableName: users
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: users_roles
+            constraintName: fkj6m8fwv7oqv74fcehir1a9ffy
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: role_id
+            referencedTableName: roles
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: subscription_id
+            baseTableName: subscription_details
+            constraintName: fkoep5c7s644f1it0n71w87q17i
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: subscription_id
+            referencedTableName: subscriptions
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: subscriber_id
+            baseTableName: subscriptions
+            constraintName: fkoodc4352epkjrvxx79odlxbji
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: user_id
+            referencedTableName: users
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: roles_authorities
+            constraintName: fkq3iqpff34tgtkvnn545a648cb
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: role_id
+            referencedTableName: roles
+            validate: true
+        - addForeignKeyConstraint:
+            baseColumnNames: course_id
+            baseTableName: videos
+            constraintName: fkrccvc1a5qx2dqsyienwhuk66j
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: course_id
+            referencedTableName: courses
+            validate: true
