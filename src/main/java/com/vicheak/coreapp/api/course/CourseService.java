@@ -87,16 +87,14 @@ public interface CourseService {
 
     /**
      * This method is used to load courses by authenticated author
-     * @param authentication is the request from client
      * @return List<CourseDto>
      */
-    List<CourseDto> loadCoursesByAuthenticatedAuthor(Authentication authentication);
+    List<CourseDto> loadCoursesByAuthenticatedAuthor();
 
     /**
      * This method is used to increase number of like when user clicks like button on ui
      * @param likeDto is the request from client
-     * @param authentication is also the request from client
      */
-    void likeCourseByUser(LikeDto likeDto, Authentication authentication);
+    void likeCourseByUser(LikeDto likeDto);
 
 }

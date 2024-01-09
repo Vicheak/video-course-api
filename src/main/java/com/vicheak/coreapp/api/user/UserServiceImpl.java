@@ -2,11 +2,13 @@ package com.vicheak.coreapp.api.user;
 
 import com.vicheak.coreapp.api.authority.Role;
 import com.vicheak.coreapp.api.authority.RoleRepository;
+import com.vicheak.coreapp.api.course.CourseServiceImpl;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
 import com.vicheak.coreapp.api.user.web.UserDto;
 import com.vicheak.coreapp.security.CustomUserDetails;
+import com.vicheak.coreapp.security.SecurityContextHelper;
 import com.vicheak.coreapp.util.FormatUtil;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepository userRoleRepository;
     private final FileService fileService;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
     public List<UserDto> loadAllUsers() {
@@ -103,8 +106,7 @@ public class UserServiceImpl implements UserService {
                 );
 
         //check security context holder
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        checkSecurityOperation(user, auth);
+        checkSecurityOperation(user);
 
         //all fields are validated here
 
@@ -134,8 +136,7 @@ public class UserServiceImpl implements UserService {
                         "Phone Number conflicts resource in the system!");
         }
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
         //check if user is an admin
         if (checkIfUserIsADMIN(authenticatedUser))
             //check roles if exist
@@ -181,8 +182,7 @@ public class UserServiceImpl implements UserService {
                 );
 
         //check security context holder
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        checkAdminRemoveOperation(user, auth);
+        checkAdminRemoveOperation(user);
 
         //remove from user roles
         userRoleRepository.deleteAll(user.getUserRoles());
@@ -216,8 +216,7 @@ public class UserServiceImpl implements UserService {
                 );
 
         //check security context holder
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        checkSecurityOperation(user, auth);
+        checkSecurityOperation(user);
 
         FileDto fileDto = fileService.uploadSingleRestrictImage(file);
 
@@ -230,9 +229,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto loadUserProfile(Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+    public UserDto loadUserProfile() {
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
         return userMapper.fromUserToUserDto(authenticatedUser);
     }
 
@@ -286,15 +284,15 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private void checkSecurityOperation(User user, Authentication auth) {
+    private void checkSecurityOperation(User user) {
         //if the user is ADMIN, allow the operation
         //if the user is not ADMIN, allow the operation, but only with security context authentication
         //meaning that author can update his or her own resource only
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
-        SimpleGrantedAuthority adminAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
+        SimpleGrantedAuthority adminAuthority = new SimpleGrantedAuthority("SCOPE_ROLE_ADMIN");
 
-        if (customUserDetails.getAuthorities().contains(adminAuthority))
+        if (authentication.getAuthorities().contains(adminAuthority))
             return;
 
         if (!user.getUuid().equals(authenticatedUser.getUuid()))
@@ -309,9 +307,8 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
-    private void checkAdminRemoveOperation(User user, Authentication auth) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+    private void checkAdminRemoveOperation(User user) {
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
 
         if (user.getUuid().equals(authenticatedUser.getUuid()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,

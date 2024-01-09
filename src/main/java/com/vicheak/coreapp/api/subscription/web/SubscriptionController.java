@@ -18,10 +18,10 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @GetMapping("/author/reports")
-    public BaseApi<?> loadSubscriptionByAuthenticatedAuthor(Authentication authentication) {
+    public BaseApi<?> loadSubscriptionByAuthenticatedAuthor() {
 
         SubscriptionAuthorDto subscriptionAuthorDto =
-                subscriptionService.loadSubscriptionByAuthenticatedAuthor(authentication);
+                subscriptionService.loadSubscriptionByAuthenticatedAuthor();
 
         return BaseApi.builder()
                 .isSuccess(true)
@@ -33,10 +33,10 @@ public class SubscriptionController {
     }
 
     @GetMapping("/subscriber/reports")
-    public BaseApi<?> loadSubscriptionByAuthenticatedSubscriber(Authentication authentication) {
+    public BaseApi<?> loadSubscriptionByAuthenticatedSubscriber() {
 
         SubscriptionDto subscriptionDto =
-                subscriptionService.loadSubscriptionByAuthenticatedSubscriber(authentication);
+                subscriptionService.loadSubscriptionByAuthenticatedSubscriber();
 
         return BaseApi.builder()
                 .isSuccess(true)

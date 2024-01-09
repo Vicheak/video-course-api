@@ -1,31 +1,48 @@
 package com.vicheak.coreapp.api.auth;
 
-import com.vicheak.coreapp.api.auth.web.ApplyAuthorDto;
-import com.vicheak.coreapp.api.auth.web.RegisterDto;
-import com.vicheak.coreapp.api.auth.web.VerifyDto;
+import com.vicheak.coreapp.api.auth.web.*;
 import com.vicheak.coreapp.api.authority.Role;
 import com.vicheak.coreapp.api.mail.Mail;
 import com.vicheak.coreapp.api.mail.MailService;
 import com.vicheak.coreapp.api.user.*;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
 import com.vicheak.coreapp.security.CustomUserDetails;
+import com.vicheak.coreapp.security.SecurityContextHelper;
 import com.vicheak.coreapp.util.RandomUtil;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthServiceImpl implements AuthService {
 
     private final AuthRepository authRepository;
@@ -34,9 +51,119 @@ public class AuthServiceImpl implements AuthService {
     private final UserRoleRepository userRoleRepository;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityContextHelper securityContextHelper;
+    private final JwtEncoder jwtEncoder;
+    private AuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationProvider jwtAuthenticationProvider;
+    private JwtEncoder jwtRefreshTokenEncoder;
+
+    @Autowired
+    public void setAuthenticationProvider(@Qualifier("authenticationProviderConfig") AuthenticationProvider authenticationProvider) {
+        this.authenticationProvider = authenticationProvider;
+    }
+
+    @Autowired
+    public void setJwtRefreshTokenEncoder(@Qualifier("jwtRefreshTokenEncoder") JwtEncoder jwtRefreshTokenEncoder) {
+        this.jwtRefreshTokenEncoder = jwtRefreshTokenEncoder;
+    }
 
     @Value("${spring.mail.username}")
     private String adminMail;
+
+    @Override
+    public AuthDto login(LoginDto loginDto) {
+        //authenticate with email and password
+        Authentication auth = new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password());
+        //use bean authentication provider to authenticate with user details service
+        auth = authenticationProvider.authenticate(auth);
+
+        //claim payload must be joined with space and default authority pattern is SCOPE_
+        String scope = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(" "));
+
+        return AuthDto.builder()
+                .type("Bearer")
+                .accessToken(generateAccessToken(GenerateTokenDto.builder()
+                        .auth(auth.getName())
+                        .scope(scope)
+                        .expiration(Instant.now().plus(1, ChronoUnit.HOURS))
+                        .build()))
+                .refreshToken(generateRefreshToken(GenerateTokenDto.builder()
+                        .auth(auth.getName())
+                        .scope(scope)
+                        .expiration(Instant.now().plus(30, ChronoUnit.DAYS))
+                        .build()))
+                .build();
+    }
+
+    @Override
+    public AuthDto refreshToken(RefreshTokenDto refreshTokenDto) {
+        //authenticate the refresh token using bearer token authentication
+        Authentication auth = new BearerTokenAuthenticationToken(refreshTokenDto.refreshToken());
+        auth = jwtAuthenticationProvider.authenticate(auth);
+
+        Jwt jwt = (Jwt) auth.getPrincipal();
+
+        return AuthDto.builder()
+                .type("Bearer")
+                .accessToken(generateAccessToken(GenerateTokenDto.builder()
+                        .auth(jwt.getId())
+                        .scope(jwt.getClaimAsString("scope"))
+                        .expiration(Instant.now().plus(1, ChronoUnit.HOURS))
+                        .build()))
+                .refreshToken(generateRefreshTokenCheckDuration(GenerateTokenDto.builder()
+                        .auth(jwt.getId())
+                        .scope(jwt.getClaimAsString("scope"))
+                        .previousToken(refreshTokenDto.refreshToken())
+                        .expiration(Instant.now().plus(30, ChronoUnit.DAYS))
+                        .duration(Duration.between(Instant.now(), jwt.getExpiresAt()))
+                        .checkDurationNumber(7)
+                        .build()))
+                .build();
+    }
+
+    private String generateAccessToken(GenerateTokenDto generateTokenDto) {
+        JwtClaimsSet jwtClaimsSet = JwtClaimsSet.builder()
+                .id(generateTokenDto.auth())
+                .issuer("public")
+                .issuedAt(Instant.now())
+                .expiresAt(generateTokenDto.expiration())
+                .subject("Access Token")
+                .audience(List.of("Public Client"))
+                .claim("scope", generateTokenDto.scope())
+                .build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet)).getTokenValue();
+    }
+
+    private String generateRefreshToken(GenerateTokenDto generateTokenDto) {
+        JwtClaimsSet jwtRefreshTokenClaimsSet = JwtClaimsSet.builder()
+                .id(generateTokenDto.auth())
+                .issuer("public")
+                .issuedAt(Instant.now())
+                .expiresAt(generateTokenDto.expiration())
+                .subject("Refresh Token")
+                .audience(List.of("Public Client"))
+                .claim("scope", generateTokenDto.scope())
+                .build();
+        return jwtRefreshTokenEncoder.encode(JwtEncoderParameters.from(jwtRefreshTokenClaimsSet)).getTokenValue();
+    }
+
+    private String generateRefreshTokenCheckDuration(GenerateTokenDto generateTokenDto) {
+        if (generateTokenDto.duration().toDays() < generateTokenDto.checkDurationNumber()) {
+            JwtClaimsSet jwtRefreshTokenClaimsSet = JwtClaimsSet.builder()
+                    .id(generateTokenDto.auth())
+                    .issuer("public")
+                    .issuedAt(Instant.now())
+                    .expiresAt(generateTokenDto.expiration())
+                    .subject("Refresh Token")
+                    .audience(List.of("Public Client"))
+                    .claim("scope", generateTokenDto.scope())
+                    .build();
+            return jwtRefreshTokenEncoder.encode(JwtEncoderParameters.from(jwtRefreshTokenClaimsSet)).getTokenValue();
+        }
+        return generateTokenDto.previousToken();
+    }
 
     @Transactional
     @Override
@@ -92,9 +219,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void applyAuthor(ApplyAuthorDto applyAuthorDto) throws MessagingException {
         //check security context holder
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
         checkIfUserIsAuthor(authenticatedUser);
 
         //load the credentials

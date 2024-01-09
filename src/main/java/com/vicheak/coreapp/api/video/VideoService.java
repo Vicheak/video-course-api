@@ -68,9 +68,8 @@ public interface VideoService {
 
     /**
      * This method is used to load videos by authenticated author
-     * @param authentication is the request from client
      * @return List<VideoDto>
      */
-    List<VideoDto> loadVideosByAuthenticatedAuthor(Authentication authentication);
+    List<VideoDto> loadVideosByAuthenticatedAuthor();
 
 }

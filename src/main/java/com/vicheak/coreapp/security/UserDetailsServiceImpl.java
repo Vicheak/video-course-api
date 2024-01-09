@@ -29,9 +29,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         CustomUserDetails customUserDetails = new CustomUserDetails();
         customUserDetails.setUser(authenticatedUser);
 
-        //log.info("Auth email : {}", customUserDetails.getUsername());
-        //log.info("Auth authorities : {}", customUserDetails.getAuthorities());
-
         return customUserDetails;
     }
 

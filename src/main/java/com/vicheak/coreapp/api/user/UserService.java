@@ -59,9 +59,8 @@ public interface UserService {
 
     /**
      * This method is used to load user profile by authenticated user
-     * @param authentication is the request from client
      * @return UserDto
      */
-    UserDto loadUserProfile(Authentication authentication);
+    UserDto loadUserProfile();
 
 }

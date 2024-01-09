@@ -17,6 +17,18 @@ public class AuthController {
     private final AuthService authService;
 
     @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/login")
+    public AuthDto login(@RequestBody @Valid LoginDto loginDto) {
+        return authService.login(loginDto);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/refreshToken")
+    public AuthDto refreshToken(@RequestBody @Valid RefreshTokenDto refreshTokenDto) {
+        return authService.refreshToken(refreshTokenDto);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
     public Map<String, String> register(@RequestBody @Valid RegisterDto registerDto) throws MessagingException {
         authService.register(registerDto);
@@ -39,7 +51,7 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/verifyAuthor")
-    public Map<String, String> verifyAuthor(@RequestBody @Valid VerifyDto verifyDto){
+    public Map<String, String> verifyAuthor(@RequestBody @Valid VerifyDto verifyDto) {
         authService.verifyAuthor(verifyDto);
         return Map.of("message", "Congratulation! Your application for author has been approved...!");
     }
