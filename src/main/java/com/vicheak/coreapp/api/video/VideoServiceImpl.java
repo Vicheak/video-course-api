@@ -11,7 +11,7 @@ import com.vicheak.coreapp.api.video.web.TransactionVideoDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
-import com.vicheak.coreapp.security.CustomUserDetails;
+import com.vicheak.coreapp.security.SecurityContextHelper;
 import com.vicheak.coreapp.spec.VideoFilter;
 import com.vicheak.coreapp.spec.VideoSpec;
 import com.vicheak.coreapp.util.SortUtil;
@@ -20,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,9 +34,10 @@ public class VideoServiceImpl implements VideoService {
 
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper;
-    private final CourseServiceImpl courseService;
     private final CourseRepository courseRepository;
+    private final CourseServiceImpl courseService;
     private final FileService fileService;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
     public List<VideoDto> loadAllVideos() {
@@ -208,9 +208,8 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public List<VideoDto> loadVideosByAuthenticatedAuthor(Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticated = customUserDetails.getUser();
+    public List<VideoDto> loadVideosByAuthenticatedAuthor() {
+        User authenticated = securityContextHelper.loadAuthenticatedUser();
         List<Course> courses = courseRepository.findByUser(authenticated);
         List<Video> videos = new ArrayList<>();
 

@@ -1,5 +1,6 @@
 package com.vicheak.coreapp.api.course;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.vicheak.coreapp.api.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +11,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 @Entity
 @Table(name = "courses_interations")
 public class CourseInteraction {
@@ -20,13 +20,11 @@ public class CourseInteraction {
     @Column(name = "course_interaction_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
-    private Course course;
+    @Column(name = "course_id", nullable = false)
+    private Long courseId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "is_viewed", nullable = false)
     private Boolean isViewed;

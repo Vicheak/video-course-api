@@ -83,9 +83,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public BaseApi<?> loadUserProfile(Authentication authentication) {
+    public BaseApi<?> loadUserProfile() {
 
-        UserDto userDto = userService.loadUserProfile(authentication);
+        UserDto userDto = userService.loadUserProfile();
 
         return BaseApi.builder()
                 .isSuccess(true)

@@ -148,9 +148,9 @@ public class CourseController {
     }
 
     @GetMapping("/me")
-    public BaseApi<?> loadCoursesByAuthenticatedAuthor(Authentication authentication) {
+    public BaseApi<?> loadCoursesByAuthenticatedAuthor() {
 
-        List<CourseDto> courseDtoList = courseService.loadCoursesByAuthenticatedAuthor(authentication);
+        List<CourseDto> courseDtoList = courseService.loadCoursesByAuthenticatedAuthor();
 
         return BaseApi.builder()
                 .isSuccess(true)
@@ -163,10 +163,9 @@ public class CourseController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/like")
-    public BaseApi<?> likeCourseByUser(@RequestBody @Valid LikeDto likeDto,
-                                       Authentication authentication) {
+    public BaseApi<?> likeCourseByUser(@RequestBody @Valid LikeDto likeDto) {
 
-        courseService.likeCourseByUser(likeDto, authentication);
+        courseService.likeCourseByUser(likeDto);
 
         return BaseApi.builder()
                 .isSuccess(true)

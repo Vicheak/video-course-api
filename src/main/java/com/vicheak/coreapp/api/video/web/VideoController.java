@@ -107,9 +107,9 @@ public class VideoController {
     }
 
     @GetMapping("/me")
-    public BaseApi<?> loadVideosByAuthenticatedAuthor(Authentication authentication) {
+    public BaseApi<?> loadVideosByAuthenticatedAuthor() {
 
-        List<VideoDto> videoDtoList = videoService.loadVideosByAuthenticatedAuthor(authentication);
+        List<VideoDto> videoDtoList = videoService.loadVideosByAuthenticatedAuthor();
 
         return BaseApi.builder()
                 .isSuccess(true)

@@ -8,12 +8,13 @@ import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.user.User;
+import com.vicheak.coreapp.api.user.UserRepository;
 import com.vicheak.coreapp.api.video.VideoMapper;
 import com.vicheak.coreapp.api.video.VideoRepository;
 import com.vicheak.coreapp.api.video.web.VideoDto;
 import com.vicheak.coreapp.pagination.LoadPageable;
 import com.vicheak.coreapp.pagination.PageDto;
-import com.vicheak.coreapp.security.CustomUserDetails;
+import com.vicheak.coreapp.security.SecurityContextHelper;
 import com.vicheak.coreapp.spec.CourseFilter;
 import com.vicheak.coreapp.spec.CourseSpec;
 import com.vicheak.coreapp.util.SortUtil;
@@ -48,6 +49,7 @@ public class CourseServiceImpl implements CourseService {
     private final VideoRepository videoRepository;
     private final VideoMapper videoMapper;
     private final EntityManager entityManager;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
     public List<CourseDto> loadAllCourses() {
@@ -66,29 +68,25 @@ public class CourseServiceImpl implements CourseService {
 
         //number of views, user views the course
         //the same user views the course, then number of views won't increase
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
 
         //check if the authenticated user already viewed the course
         Optional<CourseInteraction> courseInteractionOptional =
-                courseInteractionRepository.findByCourseAndUser(course, authenticatedUser);
+                courseInteractionRepository.findByCourseIdAndUserId(course.getId(), authenticatedUser.getId());
 
         //if user never views this course
         if (courseInteractionOptional.isEmpty()) {
             //create new course interaction for the authenticated user
             CourseInteraction courseInteraction = new CourseInteraction();
-            courseInteraction.setCourse(course);
-            courseInteraction.setUser(authenticatedUser);
+            courseInteraction.setCourseId(course.getId());
+            courseInteraction.setUserId(authenticatedUser.getId());
             courseInteraction.setIsViewed(true);
             courseInteraction.setIsLiked(false);
             course.setNumberOfView(course.getNumberOfView() + 1);
-
-            //save interaction to the database
             courseInteractionRepository.save(courseInteraction);
         } else {
             CourseInteraction courseInteraction = courseInteractionOptional.get();
-            if (!courseInteraction.getIsViewed()){
+            if (!courseInteraction.getIsViewed()) {
                 courseInteraction.setIsViewed(true);
                 course.setNumberOfView(course.getNumberOfView() + 1);
                 courseInteractionRepository.save(courseInteraction);
@@ -164,11 +162,15 @@ public class CourseServiceImpl implements CourseService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Category ID does not exist in the system!");
 
+        //load authenticated user
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
+
         //map from dto to entity
         Course course = courseMapper.fromTransactionCourseDtoToCourse(transactionCourseDto);
         course.setUuid(UUID.randomUUID().toString());
         course.setNumberOfView(0L);
         course.setNumberOfLike(0L);
+        course.setUser(authenticatedUser);
 
         course = courseRepository.save(course);
 
@@ -270,14 +272,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseDto> loadCoursesByAuthenticatedAuthor(Authentication authentication) {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticated = customUserDetails.getUser();
+    public List<CourseDto> loadCoursesByAuthenticatedAuthor() {
+        User authenticated = securityContextHelper.loadAuthenticatedUser();
         return courseMapper.fromCourseToCourseDto(courseRepository.findByUser(authenticated));
     }
 
     @Override
-    public void likeCourseByUser(LikeDto likeDto, Authentication authentication) {
+    public void likeCourseByUser(LikeDto likeDto) {
         Course course = courseRepository.findByUuid(likeDto.courseUuid())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -285,18 +286,17 @@ public class CourseServiceImpl implements CourseService {
                                         .formatted(likeDto.courseUuid()))
                 );
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
 
         //check if the authenticated user already liked the course
         Optional<CourseInteraction> courseInteractionOptional =
-                courseInteractionRepository.findByCourseAndUser(course, authenticatedUser);
+                courseInteractionRepository.findByCourseIdAndUserId(course.getId(), authenticatedUser.getId());
 
         if (courseInteractionOptional.isEmpty()) {
             //create new course interaction for the authenticated user
             CourseInteraction courseInteraction = new CourseInteraction();
-            courseInteraction.setCourse(course);
-            courseInteraction.setUser(authenticatedUser);
+            courseInteraction.setCourseId(course.getId());
+            courseInteraction.setUserId(authenticatedUser.getId());
             courseInteraction.setIsViewed(false);
             courseInteraction.setIsLiked(likeDto.isLike());
             course.setNumberOfLike(likeDto.isLike() ?
@@ -322,13 +322,12 @@ public class CourseServiceImpl implements CourseService {
     public void checkSecurityOperation(Course course) {
         //check the security context holder
         //if the user is ADMIN, allow the operation
-        //if the user is AUTHOR, allow the operation, but only with the specified courses
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
-        SimpleGrantedAuthority adminAuthority = new SimpleGrantedAuthority("ROLE_ADMIN");
+        //if the user is AUTHOR, allow the operation, but only with the specified course
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
+        SimpleGrantedAuthority adminAuthority = new SimpleGrantedAuthority("SCOPE_ROLE_ADMIN");
 
-        if (customUserDetails.getAuthorities().contains(adminAuthority))
+        if (authentication.getAuthorities().contains(adminAuthority))
             return;
 
         if (!course.getUser().getUuid().equals(authenticatedUser.getUuid()))
@@ -337,9 +336,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     public void checkSecurityOperationWithoutAdmin(Course course) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) auth.getPrincipal();
-        User authenticatedUser = customUserDetails.getUser();
+        User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
 
         if (!course.getUser().getUuid().equals(authenticatedUser.getUuid()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,

@@ -2,12 +2,14 @@ package com.vicheak.coreapp.api.subscription;
 
 import com.vicheak.coreapp.api.course.Course;
 import com.vicheak.coreapp.api.course.CourseRepository;
+import com.vicheak.coreapp.api.course.CourseServiceImpl;
 import com.vicheak.coreapp.api.subscription.web.*;
 import com.vicheak.coreapp.api.user.User;
 import com.vicheak.coreapp.api.user.UserRepository;
 import com.vicheak.coreapp.api.user.UserRole;
 import com.vicheak.coreapp.exception.ApiException;
 import com.vicheak.coreapp.security.CustomUserDetails;
+import com.vicheak.coreapp.security.SecurityContextHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -33,12 +35,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionDetailRepository subscriptionDetailRepository;
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
+    private final SecurityContextHelper securityContextHelper;
 
     @Override
-    public SubscriptionAuthorDto loadSubscriptionByAuthenticatedAuthor(Authentication authentication) {
+    public SubscriptionAuthorDto loadSubscriptionByAuthenticatedAuthor() {
         //load author resource from authenticated user
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User author = customUserDetails.getUser();
+        User author = securityContextHelper.loadAuthenticatedUser();
 
         //load subscriptions by the existing author
         List<Subscription> subscriptions = subscriptionRepository.findByAuthor(author);
@@ -92,10 +94,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
-    public SubscriptionDto loadSubscriptionByAuthenticatedSubscriber(Authentication authentication) {
+    public SubscriptionDto loadSubscriptionByAuthenticatedSubscriber() {
         //load subscriber resource from authenticated user
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User subscriber = customUserDetails.getUser();
+        User subscriber = securityContextHelper.loadAuthenticatedUser();
 
         //load subscriptions by the existing subscriber
         List<Subscription> subscriptions = subscriptionRepository.findBySubscriber(subscriber);
@@ -130,9 +131,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public void createNewSubscription(CreateNewSubscriptionDto createNewSubscriptionDto) {
         //load authenticated user
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User subscriber = customUserDetails.getUser();
+        User subscriber = securityContextHelper.loadAuthenticatedUser();
 
         //check author uuid if exists
         User author = userRepository.findByUuid(createNewSubscriptionDto.authorUuid())
@@ -206,9 +205,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 );
 
         //check the subscription detail if it belongs to the authenticated author
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticatedAuthor = customUserDetails.getUser();
+        User authenticatedAuthor = securityContextHelper.loadAuthenticatedUser();
         checkSubscriptionAuthor(subscriptionDetail, authenticatedAuthor);
 
         subscriptionDetail.setApproved(approveSubscriptionDto.approve());
@@ -227,9 +224,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 );
 
         //check the subscription detail if it belongs to the authenticated author
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        User authenticatedAuthor = customUserDetails.getUser();
+        User authenticatedAuthor = securityContextHelper.loadAuthenticatedUser();
         checkSubscriptionAuthor(subscriptionDetail, authenticatedAuthor);
 
         subscriptionDetailRepository.delete(subscriptionDetail);

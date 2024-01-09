@@ -1,11 +1,23 @@
 package com.vicheak.coreapp.api.auth;
 
-import com.vicheak.coreapp.api.auth.web.ApplyAuthorDto;
-import com.vicheak.coreapp.api.auth.web.RegisterDto;
-import com.vicheak.coreapp.api.auth.web.VerifyDto;
+import com.vicheak.coreapp.api.auth.web.*;
 import jakarta.mail.MessagingException;
 
 public interface AuthService {
+
+    /**
+     * This method is used to authenticate a valid user
+     * @param loginDto is the request from client
+     * @return AuthDto
+     */
+    AuthDto login(LoginDto loginDto);
+
+    /**
+     * This method is used to generate new access token after expiration
+     * @param refreshTokenDto is the request from client
+     * @return AuthDto
+     */
+    AuthDto refreshToken(RefreshTokenDto refreshTokenDto);
 
     /**
      * This method is used to register a user for the role SUBSCRIBER

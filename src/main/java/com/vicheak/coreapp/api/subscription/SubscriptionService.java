@@ -11,17 +11,15 @@ public interface SubscriptionService {
     /**
      * This method is used to load subscription report by authenticated author
      *
-     * @param authentication is the request from client
      * @return SubscriptionAuthorDto
      */
-    SubscriptionAuthorDto loadSubscriptionByAuthenticatedAuthor(Authentication authentication);
+    SubscriptionAuthorDto loadSubscriptionByAuthenticatedAuthor();
 
     /**
      * This method is used to load subscription report by authenticated subscriber
-     * @param authentication is the request from client
      * @return SubscriptionDto
      */
-    SubscriptionDto loadSubscriptionByAuthenticatedSubscriber(Authentication authentication);
+    SubscriptionDto loadSubscriptionByAuthenticatedSubscriber();
 
     /**
      * This method is used to create new subscription when user enrolls any courses
