@@ -5,6 +5,7 @@ import com.vicheak.coreapp.base.BaseApi;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -16,11 +17,11 @@ public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
-    @GetMapping("/{uuid}")
-    public BaseApi<?> loadSubscriptionByAuthorUuid(@PathVariable String uuid) {
+    @GetMapping("/author/reports")
+    public BaseApi<?> loadSubscriptionByAuthenticatedAuthor(Authentication authentication) {
 
         SubscriptionAuthorDto subscriptionAuthorDto =
-                subscriptionService.loadSubscriptionByAuthorUuid(uuid);
+                subscriptionService.loadSubscriptionByAuthenticatedAuthor(authentication);
 
         return BaseApi.builder()
                 .isSuccess(true)
@@ -28,6 +29,21 @@ public class SubscriptionController {
                 .message("Subscription request loaded successfully!")
                 .timestamp(LocalDateTime.now())
                 .payload(subscriptionAuthorDto)
+                .build();
+    }
+
+    @GetMapping("/subscriber/reports")
+    public BaseApi<?> loadSubscriptionByAuthenticatedSubscriber(Authentication authentication) {
+
+        SubscriptionDto subscriptionDto =
+                subscriptionService.loadSubscriptionByAuthenticatedSubscriber(authentication);
+
+        return BaseApi.builder()
+                .isSuccess(true)
+                .code(HttpStatus.OK.value())
+                .message("Subscription request loaded successfully!")
+                .timestamp(LocalDateTime.now())
+                .payload(subscriptionDto)
                 .build();
     }
 
@@ -39,8 +55,14 @@ public class SubscriptionController {
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping
-    public void approveOrRejectSubscription(@RequestBody @Valid ApproveSubscriptionDto approveSubscriptionDto){
+    public void approveOrRejectSubscription(@RequestBody @Valid ApproveSubscriptionDto approveSubscriptionDto) {
         subscriptionService.approveOrRejectSubscription(approveSubscriptionDto);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}")
+    public void removeSubscriptionDetailById(@PathVariable Long id) {
+        subscriptionService.removeSubscriptionDetailById(id);
     }
 
 }

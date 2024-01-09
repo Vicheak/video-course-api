@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.api.course;
 
 import com.vicheak.coreapp.api.course.web.CourseDto;
+import com.vicheak.coreapp.api.course.web.LikeDto;
 import com.vicheak.coreapp.api.course.web.TransactionCourseDto;
 import com.vicheak.coreapp.api.file.web.FileDto;
 import com.vicheak.coreapp.api.video.web.VideoDto;
@@ -90,5 +91,12 @@ public interface CourseService {
      * @return List<CourseDto>
      */
     List<CourseDto> loadCoursesByAuthenticatedAuthor(Authentication authentication);
+
+    /**
+     * This method is used to increase number of like when user clicks like button on ui
+     * @param likeDto is the request from client
+     * @param authentication is also the request from client
+     */
+    void likeCourseByUser(LikeDto likeDto, Authentication authentication);
 
 }

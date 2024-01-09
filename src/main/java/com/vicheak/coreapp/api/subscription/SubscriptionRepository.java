@@ -9,6 +9,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     List<Subscription> findByAuthor(User author);
 
+    List<Subscription> findBySubscriber(User subscriber);
+
     List<Subscription> findBySubscriberAndAuthor(User subscriber, User author);
 
 }
