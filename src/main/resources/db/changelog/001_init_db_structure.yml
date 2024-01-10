@@ -10,55 +10,14 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
-                    primaryKeyName: videos_pkey
-                  name: video_id
-                  startWith: 6
-                  type: BIGINT
-              - column:
-                  constraints:
-                    nullable: false
-                  name: created_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-              - column:
-                  name: video_description
-                  type: TEXT
-              - column:
-                  name: video_image_cover
-                  type: VARCHAR(255)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: video_title
-                  type: VARCHAR(255)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: updated_at
-                  type: TIMESTAMP WITHOUT TIME ZONE
-              - column:
-                  constraints:
-                    nullable: false
-                  name: video_uuid
-                  type: VARCHAR(255)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: video_link
-                  type: VARCHAR(255)
-              - column:
-                  name: course_id
-                  type: BIGINT
-            tableName: videos
-        - createTable:
-            columns:
-              - column:
-                  autoIncrement: true
-                  constraints:
-                    nullable: false
-                    primaryKey: true
                     primaryKeyName: courses_interations_pkey
                   name: course_interaction_id
-                  startWith: 15
+                  startWith: 10
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: course_id
                   type: BIGINT
               - column:
                   constraints:
@@ -70,11 +29,6 @@ databaseChangeLog:
                     nullable: false
                   name: is_viewed
                   type: BOOLEAN
-              - column:
-                  constraints:
-                    nullable: false
-                  name: course_id
-                  type: BIGINT
               - column:
                   constraints:
                     nullable: false
@@ -263,6 +217,51 @@ databaseChangeLog:
                   constraints:
                     nullable: false
                     primaryKey: true
+                    primaryKeyName: videos_pkey
+                  name: video_id
+                  type: BIGINT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: created_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: video_description
+                  type: TEXT
+              - column:
+                  name: video_image_cover
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_title
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: updated_at
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_uuid
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: video_link
+                  type: VARCHAR(255)
+              - column:
+                  name: course_id
+                  type: BIGINT
+            tableName: videos
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
                     primaryKeyName: subscription_details_pkey
                   name: subscription_detail_id
                   type: BIGINT
@@ -351,10 +350,6 @@ databaseChangeLog:
                   type: BIGINT
             tableName: subscriptions
         - addUniqueConstraint:
-            columnNames: video_uuid
-            constraintName: uk_fyw54ldr8tm5wmev84o92lqr2
-            tableName: videos
-        - addUniqueConstraint:
             columnNames: user_email
             constraintName: uk_33uo7vet9c79ydfuwg1w848f
             tableName: users
@@ -390,6 +385,10 @@ databaseChangeLog:
             columnNames: course_uuid
             constraintName: uk_gjyju0yxx2rk2ca9y6xxc3vq
             tableName: courses
+        - addUniqueConstraint:
+            columnNames: video_uuid
+            constraintName: uk_fyw54ldr8tm5wmev84o92lqr2
+            tableName: videos
         - addUniqueConstraint:
             columnNames: course_id, subscription_id
             constraintName: ukg76axr2atmwr0awrimrnlamme
@@ -432,17 +431,6 @@ databaseChangeLog:
             referencedTableName: users
             validate: true
         - addForeignKeyConstraint:
-            baseColumnNames: course_id
-            baseTableName: courses_interations
-            constraintName: fk70nctutappt74ags0phy6iln3
-            deferrable: false
-            initiallyDeferred: false
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-            referencedColumnNames: course_id
-            referencedTableName: courses
-            validate: true
-        - addForeignKeyConstraint:
             baseColumnNames: category_id
             baseTableName: courses
             constraintName: fk72l5dj585nq7i6xxv1vj51lyn
@@ -474,17 +462,6 @@ databaseChangeLog:
             onUpdate: NO ACTION
             referencedColumnNames: authority_id
             referencedTableName: authorities
-            validate: true
-        - addForeignKeyConstraint:
-            baseColumnNames: user_id
-            baseTableName: courses_interations
-            constraintName: fkhja8wpgghilof2cgo5ridvgca
-            deferrable: false
-            initiallyDeferred: false
-            onDelete: NO ACTION
-            onUpdate: NO ACTION
-            referencedColumnNames: user_id
-            referencedTableName: users
             validate: true
         - addForeignKeyConstraint:
             baseColumnNames: role_id
