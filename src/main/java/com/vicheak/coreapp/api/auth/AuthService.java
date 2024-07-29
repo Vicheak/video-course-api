@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.api.auth;
 
 import com.vicheak.coreapp.api.auth.web.*;
+import com.vicheak.coreapp.api.user.User;
 import jakarta.mail.MessagingException;
 
 public interface AuthService {
@@ -42,5 +43,26 @@ public interface AuthService {
      * @param verifyDto is the request from client
      */
     void verifyAuthor(VerifyDto verifyDto);
+
+    /**
+     * This method is used when the client forgets the password to the system
+     * @param forgetPasswordDto is the request from client
+     * @throws MessagingException
+     */
+    void forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException;
+
+    /**
+     * This method is used to send verification code to client's email
+     * @param email is the request from client
+     * @return User
+     * @throws MessagingException
+     */
+    User sendVerificationCode(String email) throws MessagingException;
+
+    /**
+     * This method is used to reset client's password after verify the account
+     * @param resetPasswordDto is the request from client
+     */
+    void resetPassword(ResetPasswordDto resetPasswordDto);
 
 }

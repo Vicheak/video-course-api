@@ -5,6 +5,7 @@ import com.vicheak.coreapp.api.authority.RoleRepository;
 import com.vicheak.coreapp.api.course.CourseServiceImpl;
 import com.vicheak.coreapp.api.file.FileService;
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.user.web.ChangePasswordDto;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
 import com.vicheak.coreapp.api.user.web.UserDto;
 import com.vicheak.coreapp.security.CustomUserDetails;
@@ -232,6 +233,27 @@ public class UserServiceImpl implements UserService {
     public UserDto loadUserProfile() {
         User authenticatedUser = securityContextHelper.loadAuthenticatedUser();
         return userMapper.fromUserToUserDto(authenticatedUser);
+    }
+
+    @Override
+    public void changePassword(String uuid, ChangePasswordDto changePasswordDto) {
+        User user = userRepository.findByUuid(uuid)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User with uuid, %s has not been found in the system!"
+                                        .formatted(uuid))
+                );
+
+        if(!changePasswordDto.password().equals(changePasswordDto.passwordConfirmation()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Password and password confirmation must be matched!");
+
+        if(!passwordEncoder.matches(changePasswordDto.oldPassword(), user.getPassword()))
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "Incorrect password, try again later!");
+
+        user.setPassword(passwordEncoder.encode(changePasswordDto.password()));
+        userRepository.save(user);
     }
 
     private @NonNull List<UserRole> updateUserRolesTransaction(@NonNull User user, @NonNull Set<Integer> roleIds) {

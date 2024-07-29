@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -94,6 +95,14 @@ public class UserController {
                 .timestamp(LocalDateTime.now())
                 .payload(userDto)
                 .build();
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/change-password/{uuid}")
+    public Map<String, String> changePassword(@PathVariable String uuid,
+                                              @RequestBody @Valid ChangePasswordDto changePasswordDto){
+        userService.changePassword(uuid, changePasswordDto);
+        return Map.of("message", "The account's password has been changed successfully!");
     }
 
 }

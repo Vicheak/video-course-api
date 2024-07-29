@@ -47,6 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final AuthRepository authRepository;
     private final AuthMapper authMapper;
+    private final UserRepository userRepository;
     private final UserServiceImpl userService;
     private final UserRoleRepository userRoleRepository;
     private final MailService mailService;
@@ -193,7 +194,7 @@ public class AuthServiceImpl implements AuthService {
 
         authRepository.save(newUser);
 
-        updateVerifiedCodeAndSendMail(newUser, "Java School Email Verification");
+        updateVerifiedCodeAndSendMail(newUser, "CheakAutomate Email Verification");
     }
 
     @Transactional
@@ -262,6 +263,47 @@ public class AuthServiceImpl implements AuthService {
         userRoleRepository.saveAll(userRoles);
 
         authRepository.save(verifiedUser);
+    }
+
+    @Transactional
+    @Override
+    public void forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException {
+        User user = sendVerificationCode(forgetPasswordDto.email());
+        user.setVerified(false);
+        user.setEnabled(false);
+        authRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public User sendVerificationCode(String email) throws MessagingException {
+        //load user by email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User with email, %s has not been found in the system!"
+                                        .formatted(email))
+                );
+        updateVerifiedCodeAndSendMail(user, "CheakAutomate Email Verification");
+        return user;
+    }
+
+    @Transactional
+    @Override
+    public void resetPassword(ResetPasswordDto resetPasswordDto) {
+        //load user by email
+        User user = userRepository.findByEmailAndVerifiedTrueAndEnabledTrue(resetPasswordDto.email())
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User with email, %s has not been found in the system!"
+                                        .formatted(resetPasswordDto.email()))
+                );
+        if(!resetPasswordDto.password().equals(resetPasswordDto.passwordConfirmation()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Password and password confirmation must be matched!");
+
+        user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
+        authRepository.save(user);
     }
 
     private void updateVerifiedCodeAndSendMail(User user, String subject) throws MessagingException {

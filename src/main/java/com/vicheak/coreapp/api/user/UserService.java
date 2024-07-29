@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.api.user;
 
 import com.vicheak.coreapp.api.file.web.FileDto;
+import com.vicheak.coreapp.api.user.web.ChangePasswordDto;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
 import com.vicheak.coreapp.api.user.web.UserDto;
 import org.springframework.security.core.Authentication;
@@ -62,5 +63,12 @@ public interface UserService {
      * @return UserDto
      */
     UserDto loadUserProfile();
+
+    /**
+     * This method is used to change password of the authenticated user
+     * @param uuid is the path parameter from client
+     * @param changePasswordDto is the request from client
+     */
+    void changePassword(String uuid, ChangePasswordDto changePasswordDto);
 
 }

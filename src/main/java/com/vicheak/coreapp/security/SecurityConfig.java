@@ -68,7 +68,10 @@ public class SecurityConfig {
                     "/api/v1/auth/login",
                     "/api/v1/auth/refreshToken",
                     "/api/v1/auth/register",
-                    "/api/v1/auth/verify").permitAll();
+                    "/api/v1/auth/verify",
+                    "/api/v1/auth/forget-password",
+                    "/api/v1/auth/send-verification-code",
+                    "/api/v1/auth/reset-password").permitAll();
 
             //category security
             auth.requestMatchers(HttpMethod.GET, "/api/v1/categories/**").hasAuthority("SCOPE_category:read");
@@ -100,6 +103,7 @@ public class SecurityConfig {
             auth.requestMatchers(HttpMethod.GET, "/api/v1/users/me").hasAuthority("SCOPE_user:profile");
             auth.requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAuthority("SCOPE_user:read");
             auth.requestMatchers(HttpMethod.POST, "/api/v1/users/**").hasAuthority("SCOPE_user:write");
+            auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/change-password/**").hasAuthority("SCOPE_user:update");
             auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/uploadImage/**").hasAuthority("SCOPE_user:update");
             auth.requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAuthority("SCOPE_ROLE_ADMIN");
             auth.requestMatchers(HttpMethod.PATCH, "/api/v1/users/**").hasAuthority("SCOPE_user:update");
