@@ -268,10 +268,18 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public void forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException {
-        User user = sendVerificationCode(forgetPasswordDto.email());
+        User user = userRepository.findByEmail(forgetPasswordDto.email())
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "User with email, %s has not been found in the system!"
+                                        .formatted(forgetPasswordDto.email()))
+                );
+
         user.setVerified(false);
         user.setEnabled(false);
         authRepository.save(user);
+
+        updateVerifiedCodeAndSendMail(user, "CheakAutomate Email Verification");
     }
 
     @Transactional
@@ -284,6 +292,7 @@ public class AuthServiceImpl implements AuthService {
                                 "User with email, %s has not been found in the system!"
                                         .formatted(email))
                 );
+
         updateVerifiedCodeAndSendMail(user, "CheakAutomate Email Verification");
         return user;
     }
@@ -295,10 +304,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmailAndVerifiedTrueAndEnabledTrue(resetPasswordDto.email())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                "User with email, %s has not been found in the system!"
+                                "Email has been not found or unauthorized to reset password!"
                                         .formatted(resetPasswordDto.email()))
                 );
-        if(!resetPasswordDto.password().equals(resetPasswordDto.passwordConfirmation()))
+        if (!resetPasswordDto.password().equals(resetPasswordDto.passwordConfirmation()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Password and password confirmation must be matched!");
 
@@ -311,11 +320,15 @@ public class AuthServiceImpl implements AuthService {
         String verifiedCode = RandomUtil.getRandomNumber();
 
         //update verification code
-        authRepository.updateVerifiedCode(user.getUsername(), verifiedCode);
+        authRepository.updateVerifiedCode(user.getEmail(), verifiedCode);
 
+        buildAndSendMail(user.getEmail(), subject, verifiedCode);
+    }
+
+    private void buildAndSendMail(String email, String subject, String verifiedCode) throws MessagingException {
         Mail<String> verifiedMail = new Mail<>();
         verifiedMail.setSender(adminMail);
-        verifiedMail.setReceiver(user.getEmail());
+        verifiedMail.setReceiver(email);
         verifiedMail.setSubject(subject);
         verifiedMail.setTemplate("auth/verify-mail.html");
         verifiedMail.setMetaData(verifiedCode);

@@ -10,8 +10,8 @@ import java.util.Optional;
 public interface AuthRepository extends JpaRepository<User, Long> {
 
     @Modifying
-    @Query("UPDATE User AS u SET u.verifiedCode = :verifiedCode WHERE u.username = :username")
-    void updateVerifiedCode(String username, String verifiedCode);
+    @Query("UPDATE User AS u SET u.verifiedCode = :verifiedCode WHERE u.email = :email")
+    void updateVerifiedCode(String email, String verifiedCode);
 
     Optional<User> findByEmailAndVerifiedCodeAndVerifiedFalseAndEnabledFalse(String email, String verifiedCode);
 
