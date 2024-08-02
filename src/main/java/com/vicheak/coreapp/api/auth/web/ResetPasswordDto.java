@@ -11,6 +11,9 @@ public record ResetPasswordDto(@NotBlank(message = "Email should not be blank!")
                                @Email(message = "Email should be in well-formed email address!")
                                String email,
 
+                               @NotBlank(message = "Password token must not be blank!")
+                               String token,
+
                                @NotBlank(message = "Password must not be blank!")
                                @Size(min = 8, message = "Password must be at least 8 characters!")
                                String password,

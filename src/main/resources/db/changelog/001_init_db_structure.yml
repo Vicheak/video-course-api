@@ -102,6 +102,9 @@ databaseChangeLog:
               - column:
                   name: verified_code
                   type: VARCHAR(255)
+              - column:
+                  name: password_token
+                  type: VARCHAR(255)
             tableName: users
         - createTable:
             columns:

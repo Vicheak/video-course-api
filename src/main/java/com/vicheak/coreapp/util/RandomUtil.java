@@ -1,6 +1,7 @@
 package com.vicheak.coreapp.util;
 
 import java.util.Random;
+import java.security.SecureRandom;
 
 public class RandomUtil {
 
@@ -12,6 +13,20 @@ public class RandomUtil {
 
         // this will convert any number sequence into 6 character.
         return String.format("%06d", number);
+    }
+
+    public static String randomTokenGenerator(int tokenLength) {
+        // Characters allowed in the token
+        final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        final SecureRandom RANDOM = new SecureRandom();
+        StringBuilder token = new StringBuilder(tokenLength);
+
+        for (int i = 0; i < tokenLength; i++) {
+            int index = RANDOM.nextInt(CHARACTERS.length());
+            token.append(CHARACTERS.charAt(index));
+        }
+
+        return token.toString();
     }
 
 }

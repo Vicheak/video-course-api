@@ -6,7 +6,6 @@ import com.vicheak.coreapp.api.mail.Mail;
 import com.vicheak.coreapp.api.mail.MailService;
 import com.vicheak.coreapp.api.user.*;
 import com.vicheak.coreapp.api.user.web.TransactionUserDto;
-import com.vicheak.coreapp.security.CustomUserDetails;
 import com.vicheak.coreapp.security.SecurityContextHelper;
 import com.vicheak.coreapp.util.RandomUtil;
 import jakarta.mail.MessagingException;
@@ -20,7 +19,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -37,7 +35,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -267,7 +264,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     @Override
-    public void forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException {
+    public PasswordTokenDto forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException {
         User user = userRepository.findByEmail(forgetPasswordDto.email())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -275,16 +272,24 @@ public class AuthServiceImpl implements AuthService {
                                         .formatted(forgetPasswordDto.email()))
                 );
 
+        String passwordToken = RandomUtil.randomTokenGenerator(30);
+
         user.setVerified(false);
         user.setEnabled(false);
+        user.setPasswordToken(passwordToken);
         authRepository.save(user);
 
         updateVerifiedCodeAndSendMail(user, "CheakAutomate Email Verification");
+
+        return PasswordTokenDto.builder()
+                .message("Please check your email for verification code and verify your account to reset password!")
+                .token(passwordToken)
+                .build();
     }
 
     @Transactional
     @Override
-    public User sendVerificationCode(String email) throws MessagingException {
+    public void sendVerificationCode(String email) throws MessagingException {
         //load user by email
         User user = userRepository.findByEmail(email)
                 .orElseThrow(
@@ -294,7 +299,6 @@ public class AuthServiceImpl implements AuthService {
                 );
 
         updateVerifiedCodeAndSendMail(user, "CheakAutomate Email Verification");
-        return user;
     }
 
     @Transactional
@@ -307,11 +311,17 @@ public class AuthServiceImpl implements AuthService {
                                 "Email has been not found or unauthorized to reset password!"
                                         .formatted(resetPasswordDto.email()))
                 );
+
+        if(!resetPasswordDto.token().equals(user.getPasswordToken()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Password token is invalid, unauthorized access!");
+
         if (!resetPasswordDto.password().equals(resetPasswordDto.passwordConfirmation()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Password and password confirmation must be matched!");
 
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
+        user.setPasswordToken(null);
         authRepository.save(user);
     }
 

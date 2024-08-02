@@ -47,17 +47,17 @@ public interface AuthService {
     /**
      * This method is used when the client forgets the password to the system
      * @param forgetPasswordDto is the request from client
+     * @return PasswordTokenDto
      * @throws MessagingException
      */
-    void forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException;
+    PasswordTokenDto forgetPassword(ForgetPasswordDto forgetPasswordDto) throws MessagingException;
 
     /**
      * This method is used to send verification code to client's email
      * @param email is the request from client
-     * @return User
      * @throws MessagingException
      */
-    User sendVerificationCode(String email) throws MessagingException;
+    void sendVerificationCode(String email) throws MessagingException;
 
     /**
      * This method is used to reset client's password after verify the account

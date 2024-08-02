@@ -55,6 +55,8 @@ public class User {
 
     private String verifiedCode;
 
+    private String passwordToken;
+
     private Boolean accountNonExpired;
 
     private Boolean accountNonLocked;

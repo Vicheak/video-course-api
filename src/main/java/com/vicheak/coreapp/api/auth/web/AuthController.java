@@ -58,9 +58,8 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/forget-password")
-    public Map<String, String> forgetPassword(@RequestBody @Valid ForgetPasswordDto forgetPasswordDto) throws MessagingException {
-        authService.forgetPassword(forgetPasswordDto);
-        return Map.of("message", "Please check your email for verification code and verify your account to reset password!");
+    public PasswordTokenDto forgetPassword(@RequestBody @Valid ForgetPasswordDto forgetPasswordDto) throws MessagingException {
+        return authService.forgetPassword(forgetPasswordDto);
     }
 
     @ResponseStatus(HttpStatus.OK)
