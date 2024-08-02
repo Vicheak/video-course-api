@@ -307,17 +307,17 @@ public class AuthServiceImpl implements AuthService {
         //load user by email
         User user = userRepository.findByEmailAndVerifiedTrueAndEnabledTrue(resetPasswordDto.email())
                 .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                                 "Email has been not found or unauthorized to reset password!"
                                         .formatted(resetPasswordDto.email()))
                 );
 
         if(!resetPasswordDto.token().equals(user.getPasswordToken()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Password token is invalid, unauthorized access!");
 
         if (!resetPasswordDto.password().equals(resetPasswordDto.passwordConfirmation()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
                     "Password and password confirmation must be matched!");
 
         user.setPassword(passwordEncoder.encode(resetPasswordDto.password()));
