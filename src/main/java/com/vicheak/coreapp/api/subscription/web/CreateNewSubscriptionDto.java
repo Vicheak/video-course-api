@@ -13,5 +13,5 @@ public record CreateNewSubscriptionDto(@NotBlank(message = "Author UUID must not
                                        @NotNull(message = "Course must not be null!")
                                        @Size(min = 1, message = "There must be at least a course!")
                                        Set<@NotNull(message = "Course must not be null!")
-                                       @Positive(message = "Course must be positive!") Long> courseIds) {
+                                       @NotBlank(message = "Course must not be blank!") String> courseUuids) {
 }

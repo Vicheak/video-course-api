@@ -308,8 +308,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmailAndVerifiedTrueAndEnabledTrue(resetPasswordDto.email())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-                                "Email has been not found or unauthorized to reset password!"
-                                        .formatted(resetPasswordDto.email()))
+                                "Email has been not found or unauthorized to reset password!")
                 );
 
         if(!resetPasswordDto.token().equals(user.getPasswordToken()))

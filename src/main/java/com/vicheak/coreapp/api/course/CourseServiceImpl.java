@@ -268,7 +268,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<VideoDto> loadVideosByCourseUuid(String uuid) {
-        return videoMapper.fromVideoToVideoDto(videoRepository.findByCourseUuid(uuid));
+        return videoMapper.fromVideoToVideoDto(videoRepository.findByCourseUuidOrderByCreatedAtAsc(uuid));
     }
 
     @Override

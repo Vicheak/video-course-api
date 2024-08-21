@@ -18,6 +18,7 @@ public record CourseDto(String uuid,
                         Long numberOfView,
                         Long numberOfLike,
                         String category,
+                        String authorUuid,
                         String author,
                         LocalDateTime createdAt,
                         LocalDateTime updatedAt) {

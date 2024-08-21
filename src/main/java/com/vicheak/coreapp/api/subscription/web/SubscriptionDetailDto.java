@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 @Builder
 public record SubscriptionDetailDto(Long subscriptionDetailId,
-                                    Long courseId,
                                     String courseUuid,
                                     String courseTitle,
                                     BigDecimal coursePrice,

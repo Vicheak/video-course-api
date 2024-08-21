@@ -111,7 +111,7 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public void createNewVideo(TransactionVideoDto transactionVideoDto) {
         //check if course does not exist
-        Course course = courseRepository.findById(transactionVideoDto.courseId())
+        Course course = courseRepository.findByUuid(transactionVideoDto.courseUuid())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Course does not exist in the system!")
@@ -123,6 +123,7 @@ public class VideoServiceImpl implements VideoService {
         //map from dto to entity
         Video newVideo = videoMapper.fromTransactionVideoDtoToVideo(transactionVideoDto);
         newVideo.setUuid(UUID.randomUUID().toString());
+        newVideo.setCourse(course);
 
         //save new video to the database
         videoRepository.save(newVideo);
@@ -143,16 +144,16 @@ public class VideoServiceImpl implements VideoService {
         courseService.checkSecurityOperationWithoutAdmin(video.getCourse());
 
         //check if course does not exist
-        if (Objects.nonNull(transactionVideoDto.courseId()))
-            if (!courseRepository.existsById(transactionVideoDto.courseId()))
+        if (Objects.nonNull(transactionVideoDto.courseUuid()))
+            if (!courseRepository.existsByUuid(transactionVideoDto.courseUuid()))
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Course does not exist, please check!");
 
         //map from dto to entity
         videoMapper.fromTransactionVideoDtoToVideo(video, transactionVideoDto);
 
-        if (Objects.nonNull(transactionVideoDto.courseId())) {
-            Course newCourse = courseRepository.findById(transactionVideoDto.courseId())
+        if (Objects.nonNull(transactionVideoDto.courseUuid())) {
+            Course newCourse = courseRepository.findByUuid(transactionVideoDto.courseUuid())
                     .orElseThrow(
                             () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                     "Course has not been found in the system!")

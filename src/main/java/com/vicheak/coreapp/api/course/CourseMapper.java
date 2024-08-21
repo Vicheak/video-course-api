@@ -24,6 +24,7 @@ public abstract class CourseMapper {
     @Mapping(target = "numberOfView", source = "numberOfView")
     @Mapping(target = "numberOfLike", source = "numberOfLike")
     @Mapping(target = "category", source = "course.category.name")
+    @Mapping(target = "authorUuid", source = "user.uuid")
     @Mapping(target = "author", source = "user.username")
     @Mapping(target = "createdAt", source = "createdAt")
     @Mapping(target = "updatedAt", source = "updatedAt")

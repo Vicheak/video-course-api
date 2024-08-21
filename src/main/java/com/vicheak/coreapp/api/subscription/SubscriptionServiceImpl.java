@@ -156,13 +156,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                     "This author contains no course!");
 
         //check courses if all exist
-        checkCourseIfExist(createNewSubscriptionDto.courseIds());
+        checkCourseIfExist(createNewSubscriptionDto.courseUuids());
 
         //check if the author contains the specific courses
-        checkIfAuthorContainsSpecificCourses(createNewSubscriptionDto.courseIds(), author);
+        checkIfAuthorContainsSpecificCourses(createNewSubscriptionDto.courseUuids(), author);
 
         //check if the subscriber already subscribes to the courses from the same author
-        checkIfSubscriberAlreadyEnrolls(subscriber, author, createNewSubscriptionDto.courseIds());
+        checkIfSubscriberAlreadyEnrolls(subscriber, author, createNewSubscriptionDto.courseUuids());
 
         Subscription newSubscription = new Subscription();
         newSubscription.setSubscriber(subscriber);
@@ -174,8 +174,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         //set up subscription details
         List<SubscriptionDetail> subscriptionDetails = new ArrayList<>();
 
-        createNewSubscriptionDto.courseIds().forEach(courseId -> {
-            Course subscribedCourse = courseRepository.findById(courseId)
+        createNewSubscriptionDto.courseUuids().forEach(courseUuid -> {
+            Course subscribedCourse = courseRepository.findByUuid(courseUuid)
                     .orElseThrow(
                             () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                     "Course has not been found in the system!")
@@ -197,8 +197,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public void approveOrRejectSubscription(ApproveSubscriptionDto approveSubscriptionDto) {
         //load subscription detail exists with the course
-        SubscriptionDetail subscriptionDetail = subscriptionDetailRepository.findByIdAndCourseId(
-                        approveSubscriptionDto.subscriptionDetailId(), approveSubscriptionDto.courseId())
+        SubscriptionDetail subscriptionDetail = subscriptionDetailRepository.findByIdAndCourseUuid(
+                        approveSubscriptionDto.subscriptionDetailId(), approveSubscriptionDto.courseUuid())
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                 "Subscription detail does not exist with the course!")
@@ -237,25 +237,25 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return false;
     }
 
-    private void checkCourseIfExist(Set<Long> courseIds) {
-        boolean allExisted = courseIds.stream()
-                .allMatch(courseRepository::existsById);
+    private void checkCourseIfExist(Set<String> courseUuids) {
+        boolean allExisted = courseUuids.stream()
+                .allMatch(courseRepository::existsByUuid);
 
         if (!allExisted)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Courses are not valid in the system! please check!");
     }
 
-    private void checkIfAuthorContainsSpecificCourses(Set<Long> courseIds, User author) {
-        courseIds.forEach(courseId -> {
-            if (!courseRepository.existsByIdAndUser(courseId, author))
+    private void checkIfAuthorContainsSpecificCourses(Set<String> courseUuids, User author) {
+        courseUuids.forEach(courseUuid -> {
+            if (!courseRepository.existsByUuidAndUser(courseUuid, author))
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "The author contains no course with id, %d!"
-                                .formatted(courseId));
+                        "The author contains no course with uuid, %s!"
+                                .formatted(courseUuid));
         });
     }
 
-    private void checkIfSubscriberAlreadyEnrolls(User subscriber, User author, Set<Long> courseIds) {
+    private void checkIfSubscriberAlreadyEnrolls(User subscriber, User author, Set<String> courseUuids) {
         List<Subscription> subscriptions =
                 subscriptionRepository.findBySubscriberAndAuthor(subscriber, author);
 
@@ -265,7 +265,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                         subscription.getSubscriptionDetails();
 
                 subscriptionDetails.forEach(subscriptionDetail -> {
-                    if (courseIds.contains(subscriptionDetail.getCourse().getId()))
+                    if (courseUuids.contains(subscriptionDetail.getCourse().getUuid()))
                         throw new ResponseStatusException(HttpStatus.CONFLICT,
                                 "You have already subscribed to the course! please check!");
                 });

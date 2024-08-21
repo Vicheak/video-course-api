@@ -11,7 +11,7 @@ public interface VideoRepository extends JpaRepository<Video, Long>, JpaSpecific
 
     Optional<Video> findByUuid(String uuid);
 
-    List<Video> findByCourseUuid(String uuid);
+    List<Video> findByCourseUuidOrderByCreatedAtAsc(String uuid);
 
     List<Video> findByCourse(Course course);
 

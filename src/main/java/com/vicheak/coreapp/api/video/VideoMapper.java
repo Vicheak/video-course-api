@@ -24,7 +24,6 @@ public abstract class VideoMapper {
 
     public abstract List<VideoDto> fromVideoToVideoDto(List<Video> videos);
 
-    @Mapping(target = "course.id", source = "courseId")
     public abstract Video fromTransactionVideoDtoToVideo(TransactionVideoDto transactionVideoDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
