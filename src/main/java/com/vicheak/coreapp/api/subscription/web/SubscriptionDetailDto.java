@@ -9,5 +9,6 @@ public record SubscriptionDetailDto(Long subscriptionDetailId,
                                     String courseUuid,
                                     String courseTitle,
                                     BigDecimal coursePrice,
+                                    Integer courseDurationInHour,
                                     Boolean isApproved) {
 }
